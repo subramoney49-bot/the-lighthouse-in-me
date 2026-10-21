@@ -177,3 +177,5 @@ dialog::backdrop { background: rgba(19,38,58,.6); }
 .socials a:hover { border-color: var(--sea); }
 .socials svg { width: 18px; height: 18px; fill: currentColor; }
 .foot-links { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; }
+.price-note { margin: -.4rem 0 0; font: .88rem var(--ui); color: var(--ink-soft); }
+.price-note b { color: var(--ink); }

@@ -15,8 +15,8 @@ export const PRODUCTS = {
   paperback: {
     id: "paperback",
     name: "The Lighthouse in Me - Paperback",
-    description: "Printed book posted to your nearest PostNet, plus the free 7-Day Journal App",
-    amount: "330.00",
+    description: "Printed book (R330) plus PostNet to PostNet delivery (R120), with the free 7-Day Journal App",
+    amount: "450.00",
     needsDelivery: true,
   },
   // R5 payment for testing the live checkout. Only accepted when the
