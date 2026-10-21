@@ -54,7 +54,7 @@ export function payfastConfig() {
 
 export const READER_URL = () =>
   env("READER_URL") || "https://the-lighthouse-in-me-edition2.netlify.app/"
-export const SALES_EMAIL = () => env("NOTIFY_EMAIL") || "sales@lighthousecircle.co.za"
+export const SALES_EMAIL = () => env("NOTIFY_EMAIL") || "lighthouseinme@gmail.com"
 
 // ---------------------------------------------------------------------------
 // PayFast signature (matches PHP urlencode as used in PayFast's docs)
