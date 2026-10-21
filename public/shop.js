@@ -1,4 +1,11 @@
 (() => {
+  // Mobile menu
+  const t = document.querySelector(".menu-toggle"), m = document.querySelector(".menu");
+  if (t && m) {
+    t.addEventListener("click", () => { const o = m.classList.toggle("open"); t.setAttribute("aria-expanded", o); });
+    m.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => m.classList.remove("open")));
+  }
+
   const PRODUCTS = {
     ebook: { title: "Ebook · R199", summary: "Read the full book online with your personal access code." },
     paperback: { title: "Paperback · R380", summary: "R260 for the book plus R120 PostNet to PostNet delivery to your nearest branch, with the free 7-Day Journal App." },
@@ -33,7 +40,7 @@
   const params = new URLSearchParams(location.search);
   if (params.has("cancelled")) {
     document.getElementById("cancelled").hidden = false;
-    document.getElementById("buy").scrollIntoView();
+    document.getElementById("buy")?.scrollIntoView();
   }
   if (params.get("buy")) open(params.get("buy"));
 
@@ -69,10 +76,4 @@
     }
   });
 
-  // Mobile menu
-  const t = document.querySelector(".menu-toggle"), m = document.querySelector(".menu");
-  if (t && m) {
-    t.addEventListener("click", () => { const o = m.classList.toggle("open"); t.setAttribute("aria-expanded", o); });
-    m.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => m.classList.remove("open")));
-  }
 })();

@@ -71,7 +71,7 @@
             <p>A confirmation has been emailed to <strong>${esc(o.email)}</strong>.</p>`);
         }
         if (o.status === "cancelled" || o.status === "failed") {
-          return show(`<h2>Payment not completed</h2><p>You have not been charged. <a href="/#buy">Try again</a>.</p>`);
+          return show(`<h2>Payment not completed</h2><p>You have not been charged. <a href="/books/#buy">Try again</a>.</p>`);
         }
       } catch (e) { /* retry */ }
 

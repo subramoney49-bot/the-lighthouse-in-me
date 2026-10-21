@@ -7,7 +7,7 @@
   <meta name="description" content="Reshma Subramoney is an award-winning author, motivational speaker and philanthropist from South Africa, and the author of The Lighthouse in Me.">
   <meta property="og:title" content="Reshma Subramoney · Author, Motivational Speaker and Philanthropist">
   <meta property="og:description" content="Author of The Lighthouse in Me. Ebook R199 · Paperback R260 plus R120 PostNet delivery, with the free 7-Day Journal App.">
-  <meta property="og:image" content="/img/reshma.jpg">
+  <meta property="og:image" content="/img/reshma-portrait.jpg">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2313263a'/%3E%3Cpath d='M13 27l1.4-14h3.2L19 27z' fill='%23fdfbf7'/%3E%3Cpath d='M13.5 10h5l-.6 3h-3.8z' fill='%23e7cf9c'/%3E%3Cpath d='M16 5l3 5h-6z' fill='%23fdfbf7'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,12 +20,13 @@
       <a class="brand" href="/">Reshma Subramoney</a>
       <button class="menu-toggle" aria-expanded="false" aria-controls="menu">Menu</button>
       <nav class="menu" id="menu">
-        <a href="#about">About</a>
-        <a href="#speaking">Speaking</a>
-        <a href="#books">Books</a>
-        <a href="#journal">Journal</a>
-        <a href="#contact">Contact</a>
-        <a class="btn" href="#buy">Buy the book</a>
+        <a href="/#about">About</a>
+        <a href="/#speaking">Speaking</a>
+        <a href="/books/">Books</a>
+        <a href="/#journal">Journal</a>
+        <a href="/news/">News</a>
+        <a href="/#contact">Contact</a>
+        <a class="btn" href="/books/#buy">Buy the book</a>
       </nav>
     </div>
   </header>
@@ -37,12 +38,15 @@
         <h1>Reshma<br>Subramoney</h1>
         <p class="me-lead">I spent years holding everything together. Now I help people find the light they carry within.</p>
         <div class="cta">
-          <a class="btn gold" href="#books">Read my book</a>
+          <a class="btn gold" href="/books/">Read my book</a>
           <a class="btn ghost-light" href="#speaking">Book me to speak</a>
         </div>
       </div>
       <figure class="me-portrait">
-        <img src="/img/reshma.jpg" alt="Reshma Subramoney" fetchpriority="high">
+        <picture>
+          <source srcset="/img/reshma-portrait.webp" type="image/webp">
+          <img src="/img/reshma-portrait.jpg" width="1086" height="1448" alt="Reshma Subramoney" fetchpriority="high">
+        </picture>
         <figcaption>Author of <em>The Lighthouse in Me</em></figcaption>
       </figure>
     </div>
@@ -90,10 +94,16 @@
 
   <section class="speaking" id="speaking">
     <div class="wrap">
+      <div class="speak-top">
       <div class="section-head">
         <span class="eyebrow">Speaking</span>
         <h2>Bring Reshma to your stage</h2>
         <p class="section-intro">Keynotes for conferences, leadership teams and community events, built on lived experience and decades in corporate South Africa.</p>
+      </div>
+      <picture class="speak-photo">
+        <source srcset="/img/reshma-sunset.webp" type="image/webp">
+        <img src="/img/reshma-sunset.jpg" width="500" height="957" loading="lazy" alt="Reshma Subramoney at the sea at sunset">
+      </picture>
       </div>
       <div class="talks">
         <article class="talk"><h3>Finding the light within</h3><p>Grief, healing and reclaiming your worth, drawn from the story behind <em>The Lighthouse in Me</em>.</p></article>
@@ -107,57 +117,47 @@
   </section>
 
   <section class="books" id="books">
-    <div class="wrap book-feature">
-      <div class="book-art">
-        <img src="/img/lighthouse-waves.jpg" alt="A lighthouse standing firm as waves break against it" loading="lazy">
-        <div class="book-art-title"><span>Reshma Subramoney</span><b>The Lighthouse in Me</b><i>A Journey of Self-Discovery, Inner Healing and Awakening</i></div>
-      </div>
-      <div class="book-text">
-        <span class="eyebrow">Books · The memoir</span>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Books</span>
         <h2>The Lighthouse in Me</h2>
-        <p class="lead">Some of us spend so long holding everything together that we forget to ask how we really are.</p>
-        <p>In 1986, a tragedy in Durban changed Reshma's family for ever. For years she carried it quietly, building a career and a family and keeping the grief where no one could see it. This is the story of what happened when she finally turned to face it.</p>
-        <p>The book is written for anyone who has survived something and kept going without ever stopping to feel it. It does not promise that the pain disappears. It shows that there is light to be found anyway.</p>
-        <div class="award-chips">
-          <span>Nominated: Best Autobiography</span>
-          <span>Nominated: Best Motivational Book</span>
-          <span>Nominated: Author of the Year</span>
+      </div>
+      <a class="banner-link" href="/books/" aria-label="See The Lighthouse in Me on the Books page">
+        <picture>
+          <source srcset="/img/lighthouse-banner.webp" type="image/webp">
+          <img src="/img/lighthouse-banner.jpg" width="1672" height="941" loading="lazy" alt="The Lighthouse in Me by Reshma Subramoney: the light you have been searching for has been within you all along">
+        </picture>
+      </a>
+      <div class="teaser-row">
+        <p class="lead">A memoir of loss, silence and the long way back to the light. Nominated for Best Autobiography, Best Motivational Book and Author of the Year at the Mzansi Literature Awards 2026.</p>
+        <div class="cta">
+          <a class="btn gold" href="/books/#buy">Buy the book</a>
+          <a class="btn ghost" href="/books/">See all books</a>
         </div>
-        <p class="facts-line">Mzansi Literature Awards 2026 · ISBN 978-1-0483-0231-8 · Available only from this website</p>
       </div>
     </div>
+  </section>
 
-    <div class="wrap buy" id="buy">
-      <div id="cancelled" class="notice" hidden>Your payment was cancelled and you have not been charged. You can try again below.</div>
-      <div class="products">
-        <article class="card">
-          <span class="tag">Ebook + free journal</span>
-          <h3>Read online</h3>
-          <div class="price">R199</div>
-          <ul>
-            <li>The full book in the online reader</li>
-            <li>Your access code by email as soon as you've paid</li>
-            <li>The same code opens the 7-day journal</li>
-          </ul>
-          <div class="grow"></div>
-          <button class="btn" data-buy="ebook">Buy the ebook</button>
+  <section class="news-teaser">
+    <div class="wrap">
+      <div class="news-teaser-head">
+        <div><span class="eyebrow">News</span><h2>In the news</h2></div>
+        <a class="btn ghost" href="/news/">All news and articles</a>
+      </div>
+      <div class="news-grid teaser">
+        <article class="news-card">
+          <div class="news-img"><img src="/img/banner-book-3x2.jpg" alt="" loading="lazy"></div>
+          <div class="news-body"><span class="news-meta">Mzansi Literature Awards · October 2026</span><h3>Three nominations at the Mzansi Literature Awards</h3></div>
         </article>
-        <article class="card feature">
-          <span class="tag">Paperback + free journal</span>
-          <h3>Printed book</h3>
-          <div class="price">R260</div>
-          <p class="price-note">+ R120 PostNet to PostNet delivery · <b>R380 total</b></p>
-          <ul>
-            <li>A printed copy of the book</li>
-            <li>Posted to your nearest PostNet branch</li>
-            <li>Free access to the <em>Seven Days to Reclaim Your Worth</em> journal</li>
-          </ul>
-          <div class="grow"></div>
-          <button class="btn gold" data-buy="paperback">Buy the paperback</button>
+        <article class="news-card">
+          <div class="news-img"><img src="/img/reshma-portrait.jpg" alt="" loading="lazy"></div>
+          <div class="news-body"><span class="news-meta">Lotus FM · Style in the City · October 2026</span><h3>Live on Lotus FM with Krishna Priya Dasa</h3></div>
+        </article>
+        <article class="news-card">
+          <div class="news-img"><img src="/img/lighthouse-waves.jpg" alt="" loading="lazy"></div>
+          <div class="news-body"><span class="news-meta">The Post · 1 October 2026</span><h3>40 years on, Reshma tells her family's story</h3><a class="news-more" href="https://thepost.co.za/news/2026-10-01-40-years-after-four-chatsworth-family-members-died-from-poisoning-reshma-subramoney-tells-her-story/" target="_blank" rel="noopener">Read the article</a></div>
         </article>
       </div>
-      <p class="pay-note">Secure payment through PayFast · Card, Instant EFT and more</p>
-      <p class="more-books">More books are on the way. Follow Reshma on TikTok or Facebook to hear first.</p>
     </div>
   </section>
 
@@ -169,7 +169,7 @@
       <p>A seven-day online journal inspired by the book. Each day has a short passage, a quote, a few check-in questions and a gentle writing exercise. You type straight into the page, and your words stay private on your own device.</p>
       <p>After Day Seven, your answers come together in a personal reflection report: what may be holding you back, the strengths you already have, and small steps you could try next.</p>
       <div class="cta">
-        <a class="btn light" href="#buy">Get the book and journal</a>
+        <a class="btn light" href="/books/#buy">Get the book and journal</a>
         <a class="btn ghost-light" href="/journal/">I have an access code</a>
       </div>
     </div>
@@ -210,50 +210,44 @@
   </section>
 
 
-  <footer class="site-foot">
+  <footer class="big-foot">
     <div class="wrap">
-      <span>© 2026 Reshma Subramoney</span>
-      <span class="foot-links">
-        <a href="mailto:lighthouseinme@gmail.com">lighthouseinme@gmail.com</a>
-        <a href="tel:+27686184719">068 618 4719</a>
-        <a href="https://www.tiktok.com/@reshma.subramoney" target="_blank" rel="noopener">TikTok</a>
-        <a href="https://www.facebook.com/rsubramoney" target="_blank" rel="noopener">Facebook</a>
-      </span>
+      <div class="newsletter">
+        <div class="nl-text">
+          <span class="nl-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 6l8.5 7 8.5-7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></span>
+          <div><h2>Stay inspired</h2><p>Inspiration, updates and news of new books, straight to your inbox.</p></div>
+        </div>
+        <form class="nl-form" name="newsletter" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="company">
+          <input type="hidden" name="form-name" value="newsletter">
+          <p class="hidden-field"><label>Leave this empty <input name="company"></label></p>
+          <label class="sr-only" for="nl-email">Your email address</label>
+          <input id="nl-email" name="email" type="email" autocomplete="email" placeholder="Your email address" required>
+          <button class="btn gold" type="submit">Join us</button>
+        </form>
+      </div>
+      <img class="ornament" src="/img/ornament.png" width="600" height="99" alt="" aria-hidden="true">
+      <div class="foot-cols">
+        <div class="foot-brand">
+          <b>Reshma Subramoney</b>
+          <span>Author of <em>The Lighthouse in Me</em></span>
+          <p>Healing. Hope. Transformation.<br>You are not alone.</p>
+        </div>
+        <div><h3>Quick links</h3><ul><li><a href="/">Home</a></li><li><a href="/#about">About the author</a></li><li><a href="/books/">Books</a></li><li><a href="/news/">News and articles</a></li><li><a href="/#contact">Contact</a></li></ul></div>
+        <div><h3>Explore</h3><ul><li><a href="/#speaking">Speaking</a></li><li><a href="/#journal">The 7-day journal</a></li><li><a href="/books/#buy">Buy the book</a></li><li><a href="/journal/">Open my journal</a></li></ul></div>
+        <div><h3>Stay connected</h3>
+          <p>lighthouseinme@gmail.com<br>068 618 4719</p>
+          <div class="foot-social">
+            <a href="https://www.facebook.com/rsubramoney" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.5V4.4c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2.4H8.1v3h2.5V21h2.9z"/></svg></a>
+            <a href="https://www.tiktok.com/@reshma.subramoney" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.7 5.7 0 1 0 4.9 5.7V9.1a7.3 7.3 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6z"/></svg></a>
+            <a href="mailto:lighthouseinme@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 6l8.5 7 8.5-7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></a>
+          </div>
+        </div>
+      </div>
+      <div class="foot-base">© 2026 Reshma Subramoney. All rights reserved.</div>
     </div>
   </footer>
 
-  <dialog id="checkout" aria-labelledby="modalTitle">
-    <form class="modal" id="orderForm" novalidate>
-      <h3 id="modalTitle">Your details</h3>
-      <p class="summary" id="modalSummary"></p>
-      <div class="row2">
-        <div class="field"><label for="firstName">First name</label><input id="firstName" name="firstName" autocomplete="given-name" required></div>
-        <div class="field"><label for="lastName">Surname</label><input id="lastName" name="lastName" autocomplete="family-name" required></div>
-      </div>
-      <div class="field">
-        <label for="email">Email address</label>
-        <input id="email" name="email" type="email" autocomplete="email" required>
-        <span class="hint" id="emailHint">Your access code will be sent here.</span>
-      </div>
-      <div id="deliveryFields">
-        <div class="field">
-          <label for="cell">Cell number</label>
-          <input id="cell" name="cell" type="tel" autocomplete="tel" placeholder="e.g. 082 123 4567">
-          <span class="hint">PostNet will contact you on this number when your book arrives.</span>
-        </div>
-        <div class="field">
-          <label for="postnet">Nearest PostNet branch</label>
-          <input id="postnet" name="postnet" placeholder="e.g. PostNet Chatsworth Centre">
-        </div>
-      </div>
-      <div class="error" id="formError" role="alert"></div>
-      <div class="actions">
-        <button type="button" class="btn ghost" id="closeBtn">Cancel</button>
-        <button type="submit" class="btn gold" id="payBtn">Continue to PayFast</button>
-      </div>
-      <p class="secure">You'll be taken to PayFast to pay securely.</p>
-    </form>
-  </dialog>
+
 
   <script src="/shop.js"></script>
 </body>
