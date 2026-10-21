@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Orders · The Lighthouse in Me</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Source+Serif+4&family=Mulish:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/site.css">
+  <style>
+    body { font-family: var(--ui); font-size: .95rem; }
+    main { padding-block: 2rem 4rem; }
+    h1 { font-size: 2.4rem; margin-bottom: 1rem; }
+    h2 { font-size: 1.6rem; margin: 2rem 0 .8rem; }
+    .box { background: #fff; border: 1px solid var(--rule); border-radius: 12px; padding: 1.2rem; }
+    .stats { display: flex; gap: .8rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .stat { background: #fff; border: 1px solid var(--rule); border-radius: 10px; padding: .8rem 1rem; min-width: 150px; }
+    .stat b { display: block; font-size: 1.6rem; font-family: var(--display); }
+    .stat.warn { border-color: #d9a441; background: var(--gold-soft); }
+    .table { overflow-x: auto; background: #fff; border: 1px solid var(--rule); border-radius: 12px; }
+    table { border-collapse: collapse; width: 100%; min-width: 760px; }
+    th, td { text-align: left; padding: .65rem .8rem; border-bottom: 1px solid var(--sea-wash); vertical-align: top; }
+    th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; padding: .15rem .5rem; border-radius: 99px; background: var(--sea-wash); color: var(--sea); }
+    .pill.bad { background: #f6e3d9; color: #b4532e; }
+    .pill.ok { background: #e3eedf; color: #4f7a4a; }
+    code { font-size: .85rem; }
+    .inline { display: flex; gap: .4rem; }
+    .inline input { font: .85rem var(--ui); padding: .35rem .5rem; border: 1px solid var(--rule); border-radius: 6px; width: 140px; }
+    .small { font-size: .82rem; padding: .4rem .8rem; }
+    textarea { width: 100%; min-height: 8rem; font: .9rem ui-monospace, Menlo, monospace; padding: .6rem; border: 1px solid var(--rule); border-radius: 8px; }
+    .msg { color: var(--sea); font-weight: 700; margin-top: .6rem; min-height: 1.2rem; }
+    .muted { color: var(--ink-soft); }
+  </style>
+</head>
+<body>
+  <header class="site-head"><div class="wrap"><a class="brand" href="/">The Lighthouse in Me</a><span class="muted">Orders</span></div></header>
+  <main class="wrap">
+    <section id="login" class="box" style="max-width:420px;padding:1.6rem">
+      <h1 style="font-size:2rem">Sign in</h1>
+      <form id="loginForm">
+        <div class="field"><label for="pw">Admin password</label><input id="pw" type="password" autocomplete="current-password" required></div>
+        <button class="btn" type="submit">Open orders</button>
+        <div class="error" id="loginErr"></div>
+      </form>
+    </section>
+
+    <section id="app" hidden>
+      <h1>Orders</h1>
+      <div class="stats" id="stats"></div>
+
+      <h2>Paid orders</h2>
+      <div class="table"><table>
+        <thead><tr><th>Date</th><th>Buyer</th><th>Product</th><th>Delivery</th><th>Code</th><th>Status</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+
+      <h2>Ebook reader codes</h2>
+      <div class="box">
+        <p>Paste unused access codes from your reader spreadsheet, one per line. Each ebook sale automatically receives the next code. Remember to note the buyer against the code in your spreadsheet.</p>
+        <textarea id="codes" placeholder="CODE-ONE&#10;CODE-TWO"></textarea>
+        <p style="margin-top:.8rem"><button class="btn" id="addCodes">Add codes</button></p>
+        <div class="msg" id="codesMsg"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let KEY = "";
+    try { KEY = sessionStorage.getItem("lh-admin") || ""; } catch (e) {}
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+    async function api(path, body) {
+      const res = await fetch("/api/admin/" + path, {
+        method: body ? "POST" : "GET",
+        headers: { "x-admin-key": KEY, "Content-Type": "application/json" },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok) throw Object.assign(new Error(out.error || "Error"), { status: res.status });
+      return out;
+    }
+
+    async function load() {
+      try {
+        const d = await api("summary");
+        $("login").hidden = true; $("app").hidden = false;
+        render(d);
+      } catch (e) {
+        $("login").hidden = false; $("app").hidden = true;
+        if (KEY) $("loginErr").textContent = e.message;
+      }
+    }
+
+    function render(d) {
+      const paid = d.orders.filter((o) => o.status === "paid");
+      const toPost = paid.filter((o) => o.product === "paperback" && !o.posted).length;
+      const needCode = paid.filter((o) => o.needsManualCode).length;
+      $("stats").innerHTML = `
+        <div class="stat"><b>${paid.length}</b>Paid orders</div>
+        <div class="stat ${toPost ? "warn" : ""}"><b>${toPost}</b>Paperbacks to post</div>
+        <div class="stat ${needCode ? "warn" : ""}"><b>${needCode}</b>Ebooks waiting for a code</div>
+        <div class="stat ${d.pool.available < 5 ? "warn" : ""}"><b>${d.pool.available}</b>Reader codes left</div>`;
+      $("rows").innerHTML = d.orders.map((o) => {
+        const date = new Date(o.paidAt || o.createdAt).toLocaleString("en-ZA", { dateStyle: "medium", timeStyle: "short" });
+        let code = esc(o.ebookCode || o.journalCode || "");
+        if (o.needsManualCode) code = `<div class="inline"><input placeholder="Reader code" data-code="${o.id}"><button class="btn small" data-assign="${o.id}">Send</button></div>`;
+        let status = o.status === "paid" ? '<span class="pill ok">Paid</span>' : `<span class="pill bad">${esc(o.status)}</span>`;
+        if (o.status === "paid" && o.product === "paperback")
+          status += `<br><label style="font-size:.82rem"><input type="checkbox" data-posted="${o.id}" ${o.posted ? "checked" : ""}> Posted</label>`;
+        return `<tr><td>${date}</td>
+          <td><b>${esc(o.firstName)} ${esc(o.lastName)}</b><br><span class="muted">${esc(o.email)}</span></td>
+          <td>${o.product === "paperback" ? "Paperback" : "Ebook"}<br><span class="muted">R${esc(o.amount)}</span></td>
+          <td>${o.product === "paperback" ? esc(o.postnet) + "<br><span class='muted'>" + esc(o.cell) + "</span>" : "—"}</td>
+          <td><code>${code}</code></td><td>${status}</td></tr>`;
+      }).join("") || '<tr><td colspan="6" class="muted">No orders yet.</td></tr>';
+    }
+
+    $("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      KEY = $("pw").value.trim();
+      try { sessionStorage.setItem("lh-admin", KEY); } catch (e2) {}
+      load();
+    });
+
+    $("rows").addEventListener("click", async (e) => {
+      const id = e.target.dataset.assign;
+      if (!id) return;
+      const code = document.querySelector(`[data-code="${id}"]`).value.trim();
+      if (!code) return;
+      e.target.disabled = true;
+      try { await api("assign", { orderId: id, code }); load(); } catch (err) { alert(err.message); e.target.disabled = false; }
+    });
+    $("rows").addEventListener("change", async (e) => {
+      const id = e.target.dataset.posted;
+      if (id) { try { await api("posted", { orderId: id, posted: e.target.checked }); load(); } catch (err) { alert(err.message); } }
+    });
+    $("addCodes").addEventListener("click", async () => {
+      $("codesMsg").textContent = "Adding…";
+      try {
+        const r = await api("codes", { codes: $("codes").value });
+        $("codesMsg").textContent = `Added ${r.added} code${r.added === 1 ? "" : "s"}${r.skipped ? `, skipped ${r.skipped} already added or used` : ""}.`;
+        $("codes").value = "";
+        load();
+      } catch (err) { $("codesMsg").textContent = err.message; }
+    });
+
+    load();
+  </script>
+</body>
+</html>

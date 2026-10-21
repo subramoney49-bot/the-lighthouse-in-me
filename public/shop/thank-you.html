@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Thank You</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Mulish:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <header class="page-hero">
+    <img src="/img/sunset-shore.jpg" alt="" aria-hidden="true">
+    <span class="eyebrow">The Lighthouse in Me</span>
+    <h1>Thank you</h1>
+  </header>
+  <main class="wrap" style="padding-bottom:4rem">
+    <div class="panel" id="panel">
+      <h2>Confirming your payment…</h2>
+      <div class="spinner"></div>
+      <p>This usually takes a few seconds. Please keep this page open.</p>
+    </div>
+  </main>
+  <footer class="site-foot" style="text-align:center;padding:2rem 16px">Questions? <a href="mailto:sales@lighthousecircle.co.za">sales@lighthousecircle.co.za</a></footer>
+
+  <script>
+    const panel = document.getElementById("panel");
+    const id = new URLSearchParams(location.search).get("order");
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let tries = 0;
+
+    function show(html) { panel.innerHTML = html; }
+
+    async function check() {
+      tries++;
+      try {
+        const res = await fetch("/api/shop/order-status?order=" + encodeURIComponent(id || ""));
+        const o = await res.json();
+        if (!res.ok) return show("<h2>Order not found</h2><p>If you've paid, please email us and we'll sort it out.</p>");
+
+        if (o.status === "paid" && o.product === "ebook" && !o.ebookCode) {
+          return show(`
+            <h2>Thank you, ${esc(o.firstName)}</h2>
+            <p>Your payment is confirmed. Your personal access code will be emailed to <strong>${esc(o.email)}</strong> shortly.</p>`);
+        }
+        if (o.status === "paid" && o.product === "ebook") {
+          return show(`
+            <h2>Welcome, ${esc(o.firstName)}</h2>
+            <p>Your payment is confirmed. Here is your personal access code:</p>
+            <div class="code">${esc(o.ebookCode)}</div>
+            <p>We've also emailed it to <strong>${esc(o.email)}</strong>. Please keep it safe — it's for your personal use.</p>
+            <p><a class="btn gold" style="display:inline-block;text-decoration:none;margin-top:8px" href="${esc(o.readerUrl)}">Open the book</a></p>`);
+        }
+        if (o.status === "paid" && o.product === "paperback") {
+          return show(`
+            <h2>Thank you, ${esc(o.firstName)}</h2>
+            <p>Your payment is confirmed. Your book will be posted to <strong>${esc(o.postnet)}</strong>, and PostNet will contact you when it arrives.</p>
+            <p>Your free 7-Day Journal App code:</p>
+            <div class="code">${esc(o.journalCode)}</div>
+            <p><a class="btn gold" href="/journal/?code=${encodeURIComponent(o.journalCode)}">Open the journal</a></p>
+            <p>A confirmation has been emailed to <strong>${esc(o.email)}</strong>.</p>`);
+        }
+        if (o.status === "cancelled" || o.status === "failed") {
+          return show(`<h2>Payment not completed</h2><p>You have not been charged. <a href="/#buy">Try again</a>.</p>`);
+        }
+      } catch (e) { /* retry */ }
+
+      if (tries < 40) return setTimeout(check, 3000);
+      show(`<h2>Still confirming</h2><p>PayFast hasn't confirmed your payment yet. If you were charged, your code will arrive by email shortly, or email <a href="mailto:sales@lighthousecircle.co.za">sales@lighthousecircle.co.za</a> and we'll help.</p>`);
+    }
+    check();
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "the-lighthouse-in-me",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@netlify/blobs": "^11.1.5",
+    "@netlify/functions": "^6.0.3"
+  }
+}
