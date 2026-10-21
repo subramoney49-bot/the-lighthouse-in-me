@@ -488,3 +488,13 @@ section { padding-block: clamp(3rem, 6vw, 4.5rem); }
   .why-grid { grid-template-columns: 1fr; }
   .why-photo { min-height: 0; height: 380px; max-width: none; }
 }
+
+/* News header v3: full photo of Reshma with the book */
+.news-hero { padding-block: clamp(2rem, 4vw, 3rem); }
+.news-hero-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); }
+.news-hero-photo { margin: 0; justify-self: end; }
+.news-hero-photo img { display: block; width: auto; height: clamp(360px, 40vw, 520px); max-width: 100%; object-fit: contain; border-radius: 16px; border: 3px solid #fdfbf7; box-shadow: 0 24px 50px rgba(0,0,0,.45); }
+@media (max-width: 760px) {
+  .news-hero-photo { justify-self: center; }
+  .news-hero-photo img { height: auto; width: 100%; max-width: 360px; }
+}
