@@ -50,7 +50,7 @@ export default async (req: Request, context: Context) => {
     ["merchant_id", pf.merchantId],
     ["merchant_key", pf.merchantKey],
     ["return_url", `${base}/shop/thank-you.html?order=${order.id}`],
-    ["cancel_url", `${base}/?cancelled=1#buy`],
+    ["cancel_url", `${base}/?cancelled=1`],
     ["notify_url", `${base}/api/shop/payfast-itn`],
     ["name_first", firstName],
     ["name_last", lastName],

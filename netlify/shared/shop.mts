@@ -45,7 +45,10 @@ export function payfastConfig() {
     host: "sandbox.payfast.co.za",
     merchantId: "10000100",
     merchantKey: "46f0cd694581a",
-    passphrase: env("PAYFAST_SANDBOX_PASSPHRASE") || "jt7NOE43FZPn",
+    // Set PAYFAST_SANDBOX_PASSPHRASE to "none" to test without a passphrase
+    passphrase: env("PAYFAST_SANDBOX_PASSPHRASE").toLowerCase() === "none"
+      ? ""
+      : env("PAYFAST_SANDBOX_PASSPHRASE") || "jt7NOE43FZPn",
   }
 }
 

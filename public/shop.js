@@ -30,7 +30,10 @@
   document.getElementById("closeBtn").addEventListener("click", () => dlg.close());
 
   const params = new URLSearchParams(location.search);
-  if (params.has("cancelled")) document.getElementById("cancelled").hidden = false;
+  if (params.has("cancelled")) {
+    document.getElementById("cancelled").hidden = false;
+    document.getElementById("buy").scrollIntoView();
+  }
   if (params.get("buy")) open(params.get("buy"));
 
   form.addEventListener("submit", async (e) => {
