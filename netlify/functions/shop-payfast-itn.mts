@@ -1,7 +1,7 @@
 import type { Config, Context } from "@netlify/functions"
 import {
   PRODUCTS, payfastConfig, paramString, signature, orders, accessCodes,
-  newAccessCode, claimEbookCode, sendEmail, escapeHtml, READER_URL, SALES_EMAIL, type Order,
+  newAccessCode, claimEbookCode, SHARED_CODE, sendEmail, escapeHtml, READER_URL, SALES_EMAIL, type Order,
 } from "../shared/shop.mts"
 
 // PayFast Instant Transaction Notification (ITN).
@@ -88,48 +88,66 @@ export default async (req: Request, context: Context) => {
     }
     throw new Error("Could not create a unique access code")
   }
-  if (order.product === "ebook") {
-    const code = await claimEbookCode(order.id, order.email)
-    if (code) order.ebookCode = code
-    else order.needsManualCode = true
+  const shared = SHARED_CODE()
+  if (shared) {
+    // One code opens both the online book and the journal
+    order.journalCode = shared
+    if (order.product === "ebook") order.ebookCode = shared
+  } else {
+    if (order.product === "ebook") {
+      const code = await claimEbookCode(order.id, order.email)
+      if (code) order.ebookCode = code
+      else order.needsManualCode = true
+    }
+    if (order.product === "paperback" || order.product === "test") order.journalCode = await issue("JOURNAL", "journal")
   }
-  if (order.product === "paperback" || order.product === "test") order.journalCode = await issue("JOURNAL", "journal")
   await store.setJSON(order.id, order)
 
+  // 6. Email the buyer straight away (the thank-you page also shows the code)
   const siteUrl = new URL(req.url).origin
-  // 6. Emails (best effort — the thank-you page also shows the code)
   const name = escapeHtml(order.firstName)
-  if (order.product === "ebook" && !order.ebookCode) {
-    order.emailSent = await sendEmail(
-      order.email,
-      "Your order of The Lighthouse in Me",
-      `<p>Dear ${name},</p>
-       <p>Thank you for buying the ebook of <em>The Lighthouse in Me</em>. Your payment is confirmed, and your personal access code will be emailed to you shortly.</p>
-       <p>With warm regards,<br>Reshma Subramoney</p>`,
-    )
-  } else if (order.product === "test") {
-    order.emailSent = false
-  } else if (order.ebookCode) {
+  const journalLink = `${siteUrl}/journal/?code=${encodeURIComponent(order.journalCode ?? "")}`
+  const codeBlock = (code: string) =>
+    `<p style="font-size:22px;font-weight:bold;letter-spacing:2px;margin:16px 0">${escapeHtml(code)}</p>`
+  const button = (href: string, label: string) =>
+    `<p style="margin:12px 0"><a href="${href}" style="background:#1d3447;color:#fdfbf7;padding:12px 20px;border-radius:999px;text-decoration:none;font-weight:bold;display:inline-block">${label}</a></p>`
+  const sign = `<p>With warm regards,<br>Reshma Subramoney<br><a href="${siteUrl}">${siteUrl.replace(/^https?:\/\//, "")}</a></p>`
+
+  if (order.product === "ebook" && order.ebookCode) {
     order.emailSent = await sendEmail(
       order.email,
       "Your access code for The Lighthouse in Me",
       `<p>Dear ${name},</p>
-       <p>Thank you for buying <em>The Lighthouse in Me</em>. Your personal access code is:</p>
-       <p style="font-size:22px;font-weight:bold;letter-spacing:2px">${order.ebookCode}</p>
-       <p>Open the book here: <a href="${READER_URL()}">${READER_URL()}</a> and enter your code.</p>
-       <p>This code is for your personal use. With warm regards,<br>Reshma Subramoney</p>`,
+       <p>Thank you for buying <em>The Lighthouse in Me</em>. Your payment is confirmed. Your access code is:</p>
+       ${codeBlock(order.ebookCode)}
+       <p>Use it to read the book online:</p>
+       ${button(READER_URL(), "Read the book")}
+       ${order.journalCode ? `<p>The same code opens your free <em>Seven Days to Reclaim Your Worth</em> journal:</p>${button(journalLink, "Open the journal")}` : ""}
+       <p>Please keep this code for your own use.</p>${sign}`,
     )
-  } else {
+  } else if (order.product === "ebook") {
     order.emailSent = await sendEmail(
       order.email,
       "Your order of The Lighthouse in Me",
       `<p>Dear ${name},</p>
-       <p>Thank you for ordering the paperback of <em>The Lighthouse in Me</em>. It will be posted to
-       <strong>${escapeHtml(order.postnet)}</strong>, and we'll let you know when it's on its way.</p>
-       <p>Your free 7-Day Journal App code is:</p>
-       <p style="font-size:22px;font-weight:bold;letter-spacing:2px">${order.journalCode}</p>
-       <p>Open your journal here: <a href="${siteUrl}/journal/?code=${order.journalCode}">${siteUrl}/journal/</a></p>
-       <p>With warm regards,<br>Reshma Subramoney</p>`,
+       <p>Thank you for buying the ebook of <em>The Lighthouse in Me</em>. Your payment is confirmed, and your access code will be emailed to you shortly.</p>${sign}`,
+    )
+  } else if (order.product === "paperback") {
+    order.emailSent = await sendEmail(
+      order.email,
+      "Your order of The Lighthouse in Me",
+      `<p>Dear ${name},</p>
+       <p>Thank you for ordering the paperback of <em>The Lighthouse in Me</em>. Your payment is confirmed. The book will be posted to
+       <strong>${escapeHtml(order.postnet)}</strong>, and PostNet will contact you on ${escapeHtml(order.cell)} when it arrives.</p>
+       <p>While you wait, here is your access code for the free <em>Seven Days to Reclaim Your Worth</em> journal:</p>
+       ${codeBlock(order.journalCode ?? "")}
+       ${button(journalLink, "Open the journal")}${sign}`,
+    )
+  } else {
+    order.emailSent = await sendEmail(
+      order.email,
+      "Website test payment received",
+      `<p>The R5 test payment went through. Access code issued: ${escapeHtml(order.journalCode ?? "")}</p>${button(journalLink, "Open the journal")}`,
     )
   }
   await store.setJSON(order.id, order)
@@ -137,7 +155,8 @@ export default async (req: Request, context: Context) => {
   await sendEmail(
     SALES_EMAIL(),
     `${order.needsManualCode ? "ACTION NEEDED - send ebook code: " : ""}New ${order.product} order: ${order.firstName} ${order.lastName} (R${order.amount})`,
-    `<p><strong>${order.product === "paperback" ? "Paperback — please post" : "Ebook"}</strong></p>
+    `<p><strong>${order.product === "paperback" ? "Paperback — please post" : order.product === "test" ? "Test payment" : "Ebook"}</strong></p>
+     <p>Buyer email ${order.emailSent ? "sent" : "NOT sent - please send the code yourself"}.</p>
      <p>Name: ${escapeHtml(order.firstName + " " + order.lastName)}<br>
      Email: ${escapeHtml(order.email)}<br>
      Cell: ${escapeHtml(order.cell || "-")}<br>

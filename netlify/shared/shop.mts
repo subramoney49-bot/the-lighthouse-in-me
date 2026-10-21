@@ -167,7 +167,37 @@ export const json = (data: unknown, status = 200) =>
 // ---------------------------------------------------------------------------
 // Email (optional — sent through Resend when RESEND_API_KEY is set)
 // ---------------------------------------------------------------------------
+// The one access code that opens both the online book and the journal.
+// Set SHARED_ACCESS_CODE in Netlify; it must also be a valid code in the reader.
+export const SHARED_CODE = () => env("SHARED_ACCESS_CODE")
+
+export function isSharedCode(code: string): boolean {
+  const shared = SHARED_CODE()
+  return !!shared && code.trim().toUpperCase() === shared.toUpperCase()
+}
+
+// Sends from Gmail when GMAIL_APP_PASSWORD is set (GMAIL_USER defaults to
+// lighthouseinme@gmail.com); otherwise from Resend when RESEND_API_KEY is set.
 export async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+  const gmailPass = env("GMAIL_APP_PASSWORD").replace(/\s+/g, "")
+  if (gmailPass) {
+    const user = env("GMAIL_USER") || "lighthouseinme@gmail.com"
+    try {
+      const nodemailer = (await import("nodemailer")).default
+      const transport = nodemailer.createTransport({
+        host: "smtp.gmail.com", port: 465, secure: true,
+        auth: { user, pass: gmailPass },
+      })
+      await transport.sendMail({
+        from: `"The Lighthouse in Me" <${user}>`,
+        to, subject, html, replyTo: SALES_EMAIL(),
+      })
+      return true
+    } catch (e) {
+      console.error("Gmail send failed", e)
+      return false
+    }
+  }
   const key = env("RESEND_API_KEY")
   const from = env("EMAIL_FROM")
   if (!key || !from) return false

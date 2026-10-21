@@ -51,7 +51,8 @@
             <p>Your payment is confirmed. Here is your personal access code:</p>
             <div class="code">${esc(o.ebookCode)}</div>
             <p>We've also emailed it to <strong>${esc(o.email)}</strong>. Please keep it safe — it's for your personal use.</p>
-            <p><a class="btn gold" style="display:inline-block;text-decoration:none;margin-top:8px" href="${esc(o.readerUrl)}">Open the book</a></p>`);
+            <p style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap"><a class="btn gold" href="${esc(o.readerUrl)}">Read the book</a>${o.journalCode ? `<a class="btn ghost" href="/journal/?code=${encodeURIComponent(o.journalCode)}">Open the journal</a>` : ""}</p>
+            ${o.journalCode ? "<p>The same code also opens your free 7-day journal.</p>" : ""}`);
         }
         if (o.status === "paid" && o.product === "test") {
           return show(`

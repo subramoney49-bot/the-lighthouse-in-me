@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@netlify/blobs": "^11.1.5",
-    "@netlify/functions": "^6.0.3"
+    "@netlify/functions": "^6.0.3",
+    "nodemailer": "^6.10.1"
   }
 }
