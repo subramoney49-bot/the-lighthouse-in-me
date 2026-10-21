@@ -1,7 +1,7 @@
 (() => {
   const PRODUCTS = {
-    ebook: { title: "Ebook · R250", summary: "Read the full book online with your personal access code." },
-    paperback: { title: "Paperback · R450", summary: "R330 for the book plus R120 PostNet to PostNet delivery to your nearest branch, with the free 7-Day Journal App." },
+    ebook: { title: "Ebook · R199", summary: "Read the full book online with your personal access code." },
+    paperback: { title: "Paperback · R380", summary: "R260 for the book plus R120 PostNet to PostNet delivery to your nearest branch, with the free 7-Day Journal App." },
     test: { title: "Website test · R5", summary: "A R5 payment to check the checkout works. Only you will see this." },
   };
   const dlg = document.getElementById("checkout");

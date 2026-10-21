@@ -9,14 +9,14 @@ export const PRODUCTS = {
     id: "ebook",
     name: "The Lighthouse in Me - Ebook",
     description: "Online ebook edition with a personal access code",
-    amount: "250.00",
+    amount: "199.00",
     needsDelivery: false,
   },
   paperback: {
     id: "paperback",
     name: "The Lighthouse in Me - Paperback",
-    description: "Printed book (R330) plus PostNet to PostNet delivery (R120), with the free 7-Day Journal App",
-    amount: "450.00",
+    description: "Printed book (R260) plus PostNet to PostNet delivery (R120), with the free 7-Day Journal App",
+    amount: "380.00",
     needsDelivery: true,
   },
   // R5 payment for testing the live checkout. Only accepted when the
