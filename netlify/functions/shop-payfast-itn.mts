@@ -93,7 +93,7 @@ export default async (req: Request, context: Context) => {
     if (code) order.ebookCode = code
     else order.needsManualCode = true
   }
-  if (order.product === "paperback") order.journalCode = await issue("JOURNAL", "journal")
+  if (order.product === "paperback" || order.product === "test") order.journalCode = await issue("JOURNAL", "journal")
   await store.setJSON(order.id, order)
 
   const siteUrl = new URL(req.url).origin
@@ -107,6 +107,8 @@ export default async (req: Request, context: Context) => {
        <p>Thank you for buying the ebook of <em>The Lighthouse in Me</em>. Your payment is confirmed, and your personal access code will be emailed to you shortly.</p>
        <p>With warm regards,<br>Reshma Subramoney</p>`,
     )
+  } else if (order.product === "test") {
+    order.emailSent = false
   } else if (order.ebookCode) {
     order.emailSent = await sendEmail(
       order.email,

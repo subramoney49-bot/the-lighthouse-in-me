@@ -111,7 +111,7 @@
           status += `<br><label style="font-size:.82rem"><input type="checkbox" data-posted="${o.id}" ${o.posted ? "checked" : ""}> Posted</label>`;
         return `<tr><td>${date}</td>
           <td><b>${esc(o.firstName)} ${esc(o.lastName)}</b><br><span class="muted">${esc(o.email)}</span></td>
-          <td>${o.product === "paperback" ? "Paperback" : "Ebook"}<br><span class="muted">R${esc(o.amount)}</span></td>
+          <td>${o.product === "paperback" ? "Paperback" : o.product === "test" ? "Test (R5)" : "Ebook"}<br><span class="muted">R${esc(o.amount)}</span></td>
           <td>${o.product === "paperback" ? esc(o.postnet) + "<br><span class='muted'>" + esc(o.cell) + "</span>" : "—"}</td>
           <td><code>${code}</code></td><td>${status}</td></tr>`;
       }).join("") || '<tr><td colspan="6" class="muted">No orders yet.</td></tr>';

@@ -19,6 +19,15 @@ export const PRODUCTS = {
     amount: "330.00",
     needsDelivery: true,
   },
+  // R5 payment for testing the live checkout. Only accepted when the
+  // ALLOW_TEST_PURCHASE setting is "yes" in Netlify.
+  test: {
+    id: "test",
+    name: "The Lighthouse in Me - Website test",
+    description: "Test payment to check the website checkout",
+    amount: "5.00",
+    needsDelivery: false,
+  },
 } as const
 
 export type ProductId = keyof typeof PRODUCTS

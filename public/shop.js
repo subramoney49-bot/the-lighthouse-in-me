@@ -2,6 +2,7 @@
   const PRODUCTS = {
     ebook: { title: "Ebook · R250", summary: "Read the full book online with your personal access code." },
     paperback: { title: "Paperback · R330", summary: "Printed book posted to your nearest PostNet, with the free 7-Day Journal App." },
+    test: { title: "Website test · R5", summary: "A R5 payment to check the checkout works. Only you will see this." },
   };
   const dlg = document.getElementById("checkout");
   const form = document.getElementById("orderForm");

@@ -53,6 +53,13 @@
             <p>We've also emailed it to <strong>${esc(o.email)}</strong>. Please keep it safe — it's for your personal use.</p>
             <p><a class="btn gold" style="display:inline-block;text-decoration:none;margin-top:8px" href="${esc(o.readerUrl)}">Open the book</a></p>`);
         }
+        if (o.status === "paid" && o.product === "test") {
+          return show(`
+            <h2>Test payment received</h2>
+            <p>The checkout is working. PayFast confirmed the R5 test payment and the site issued this journal code:</p>
+            <div class="code">${esc(o.journalCode)}</div>
+            <p><a class="btn gold" href="/journal/?code=${encodeURIComponent(o.journalCode)}">Open the journal</a></p>`);
+        }
         if (o.status === "paid" && o.product === "paperback") {
           return show(`
             <h2>Thank you, ${esc(o.firstName)}</h2>

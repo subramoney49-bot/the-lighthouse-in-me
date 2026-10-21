@@ -18,6 +18,9 @@ export default async (req: Request, context: Context) => {
   const productId = clean(body.product) as ProductId
   const product = PRODUCTS[productId]
   if (!product) return json({ error: "Unknown product" }, 400)
+  if (product.id === "test" && (Netlify.env.get("ALLOW_TEST_PURCHASE") ?? "").trim().toLowerCase() !== "yes") {
+    return json({ error: "Unknown product" }, 400)
+  }
 
   const firstName = clean(body.firstName, 100)
   const lastName = clean(body.lastName, 100)
@@ -71,8 +74,6 @@ export default async (req: Request, context: Context) => {
   )
   const fields = pairs.map(([k, v]) => [k, v.trim()] as [string, string]).filter(([, v]) => v !== "")
   fields.push(["signature", signature(fields, pf.passphrase)])
-  // TEMPORARY: helps diagnose a PayFast signature mismatch. Remove once fixed.
-  console.log("PFDEBUG", JSON.stringify({ live: pf.live, hasPassphrase: !!pf.passphrase, fields }))
 
   return json({
     action: `https://${pf.host}/eng/process`,
