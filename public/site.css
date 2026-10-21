@@ -356,3 +356,99 @@ button.news-more { background: none; border: 0; padding: 0; cursor: pointer; tex
 .viewer-nav { position: fixed; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 50%; border: 1px solid rgba(255,255,255,.4); background: rgba(10,20,32,.7); color: #fff; font-size: 1.8rem; line-height: 1; cursor: pointer; }
 .viewer-nav.prev { left: max(10px, env(safe-area-inset-left, 0px)); }
 .viewer-nav.next { right: max(10px, env(safe-area-inset-right, 0px)); }
+
+/* ===== Hero v2: photo fills the right half of the banner ===== */
+.me-hero { padding-block: 0; min-height: min(88vh, 760px); display: flex; flex-direction: column; justify-content: flex-end; }
+.me-hero-grid { display: block; position: static; padding-block: clamp(3.5rem, 9vw, 7rem) 0; }
+.me-hero-text { position: relative; z-index: 2; max-width: 34rem; }
+.me-hero h1 { font-size: clamp(3.6rem, 8.5vw, 7.6rem); }
+.me-lead { max-width: 26ch; }
+.me-portrait { position: absolute; top: 0; right: 0; bottom: 0; width: 54%; margin: 0; z-index: 1; }
+.me-portrait picture, .me-portrait img { display: block; width: 100%; height: 100%; }
+.me-portrait img { aspect-ratio: auto; object-fit: cover; object-position: 50% 18%; border-radius: 0; box-shadow: none; outline: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 32%); mask-image: linear-gradient(90deg, transparent 0%, #000 32%); }
+.me-portrait::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(180deg, transparent, var(--night)); pointer-events: none; }
+.me-portrait figcaption { left: auto; right: max(16px, env(safe-area-inset-right, 0px)); bottom: 7.5rem; z-index: 2; }
+.me-hero > .wrap:last-child { position: relative; z-index: 2; }
+.proof { margin-top: clamp(2.5rem, 6vw, 4rem); }
+@media (max-width: 820px) {
+  .me-hero { min-height: 0; }
+  .me-hero-grid { display: flex; flex-direction: column; padding-top: 0; }
+  .me-portrait { position: relative; order: -1; width: calc(100% + 32px); margin: 0 -16px; height: 62vh; max-height: 520px; }
+  .me-portrait img { -webkit-mask-image: none; mask-image: none; object-position: 50% 12%; }
+  .me-portrait figcaption { bottom: 1.2rem; left: 16px; right: auto; }
+  .me-hero-text { margin-top: -3.5rem; }
+}
+
+/* ===== Layout fixes v3 ===== */
+/* Images keep their shape: height attributes must never stretch them */
+img { height: auto; }
+
+/* Hero: text left, photo filling the right side */
+.me-hero > .wrap { width: 100%; }
+.me-hero-text { max-width: min(34rem, 48%); }
+.me-hero h1 { font-size: clamp(3.2rem, 6.2vw, 6.4rem); }
+.me-portrait { width: 50%; }
+.me-portrait picture { height: 100%; }
+.me-portrait img { height: 100%; -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.6) 18%, #000 38%); mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.6) 18%, #000 38%); }
+.me-portrait figcaption { bottom: 8.5rem; }
+@media (max-width: 820px) {
+  .me-hero-text { max-width: none; margin-top: -2rem; }
+  .me-portrait { width: auto; max-width: none; margin: 0 -16px; height: 60vh; max-height: 520px; }
+  .me-portrait img { height: 100%; }
+  .me-portrait figcaption { bottom: 3rem; }
+}
+
+/* About: text and photo side by side, no tall empty column */
+.about-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); align-items: start; }
+.about-head { display: grid; grid-template-columns: 1fr; gap: 0; }
+.about-photo { height: 420px; max-width: none; width: 100%; aspect-ratio: auto; object-fit: cover; object-position: 50% 12%; margin-top: 1.6rem; }
+.about-body .lead { font-size: clamp(1.4rem, 2.4vw, 1.8rem); margin-bottom: 1.2rem; }
+.about-body p { font-size: 1.08rem; }
+@media (max-width: 900px) {
+  .about-grid { grid-template-columns: 1fr; }
+  .about-head { grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+  .about-photo { height: 320px; margin-top: 0; grid-row: span 3; grid-column: 2; }
+}
+@media (max-width: 560px) {
+  .about-head { grid-template-columns: 1fr; }
+  .about-photo { grid-column: auto; height: 360px; }
+}
+
+/* Tighter vertical rhythm overall */
+section { padding-block: clamp(3rem, 6vw, 4.5rem); }
+.section-head { margin-bottom: 1.6rem; }
+.creds { margin-top: 2.2rem; }
+
+/* Speaking photo keeps its size */
+.speak-photo img { height: 340px; }
+@media (max-width: 760px) { .speak-photo img { height: 300px; } }
+
+/* Books page */
+.book-entry { margin-top: 1.5rem; }
+.why-photo img { height: 520px; max-height: none; }
+@media (max-width: 820px) { .why-photo img { height: 380px; } }
+
+/* ===== Layout fixes v4 ===== */
+.about-grid { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+.about-figure { margin: 0; }
+.about-figure .about-photo { width: 100%; height: auto; aspect-ratio: 4/5; max-height: 640px; object-fit: cover; object-position: 50% 10%; margin: 0; grid-row: auto; grid-column: auto; }
+.about-main h2 { font-size: clamp(2.3rem, 4.8vw, 3.4rem); margin: .5rem 0 1.2rem; }
+.about-main .pull { margin-bottom: 1.6rem; }
+@media (max-width: 760px) {
+  .about-grid { grid-template-columns: 1fr; }
+  .about-figure .about-photo { aspect-ratio: 1/1; max-height: 420px; }
+}
+
+.speak-top { grid-template-columns: 220px minmax(0, 1fr); align-items: center; gap: 2rem; }
+.speak-photo img { height: 260px; }
+@media (max-width: 760px) { .speak-top { grid-template-columns: 1fr; } .speak-photo img { height: 300px; max-width: 100%; } }
+.talks { display: flex; flex-wrap: wrap; }
+.talk { flex: 1 1 170px; }
+
+.news-grid.teaser { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 680px) { .news-grid.teaser { grid-template-columns: 1fr; } }
+@media (min-width: 561px) and (max-width: 900px) { .news-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 820px) {
+  .me-portrait { width: 100vw; margin-inline: calc(50% - 50vw); }
+}
