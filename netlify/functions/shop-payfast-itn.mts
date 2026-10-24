@@ -99,7 +99,7 @@ export default async (req: Request, context: Context) => {
       if (code) order.ebookCode = code
       else order.needsManualCode = true
     }
-    if (order.product === "paperback" || order.product === "test") order.journalCode = await issue("JOURNAL", "journal")
+    if (order.product === "paperback" || order.product === "collect" || order.product === "test") order.journalCode = await issue("JOURNAL", "journal")
   }
   await store.setJSON(order.id, order)
 
@@ -143,6 +143,17 @@ export default async (req: Request, context: Context) => {
        ${codeBlock(order.journalCode ?? "")}
        ${button(journalLink, "Open the journal")}${sign}`,
     )
+  } else if (order.product === "collect") {
+    order.emailSent = await sendEmail(
+      order.email,
+      "Your order of The Lighthouse in Me",
+      `<p>Dear ${name},</p>
+       <p>Thank you for ordering the paperback of <em>The Lighthouse in Me</em> for collection. Your payment is confirmed.
+       We will contact you on ${escapeHtml(order.cell)} to arrange when and where to collect your book.</p>
+       <p>While you wait, here is your access code for the free <em>Seven Days to Reclaim Your Worth</em> journal:</p>
+       ${codeBlock(order.journalCode ?? "")}
+       ${button(journalLink, "Open the journal")}${sign}`,
+    )
   } else {
     order.emailSent = await sendEmail(
       order.email,
@@ -155,7 +166,7 @@ export default async (req: Request, context: Context) => {
   await sendEmail(
     SALES_EMAIL(),
     `${order.needsManualCode ? "ACTION NEEDED - send ebook code: " : ""}New ${order.product} order: ${order.firstName} ${order.lastName} (R${order.amount})`,
-    `<p><strong>${order.product === "paperback" ? "Paperback — please post" : order.product === "test" ? "Test payment" : "Ebook"}</strong></p>
+    `<p><strong>${order.product === "paperback" ? "Paperback — please post" : order.product === "collect" ? "Paperback — COLLECTION (no delivery), please contact buyer to arrange" : order.product === "test" ? "Test payment" : "Ebook"}</strong></p>
      <p>Buyer email ${order.emailSent ? "sent" : "NOT sent - please send the code yourself"}.</p>
      <p>Name: ${escapeHtml(order.firstName + " " + order.lastName)}<br>
      Email: ${escapeHtml(order.email)}<br>

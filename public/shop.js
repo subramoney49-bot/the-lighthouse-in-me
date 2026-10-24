@@ -9,6 +9,7 @@
   const PRODUCTS = {
     ebook: { title: "Ebook · R199", summary: "Read the full book online with your personal access code." },
     paperback: { title: "Paperback · R380", summary: "R260 for the book plus R120 PostNet to PostNet delivery to your nearest branch, with the free 7-Day Journal App." },
+    collect: { title: "Paperback, collect · R310", summary: "The printed book with no delivery: we'll contact you to arrange collection. Includes the free 7-Day Journal App." },
     test: { title: "Website test · R5", summary: "A R5 payment to check the checkout works. Only you will see this." },
   };
   const dlg = document.getElementById("checkout");
@@ -24,9 +25,15 @@
     document.getElementById("modalTitle").textContent = PRODUCTS[current].title;
     document.getElementById("modalSummary").textContent = PRODUCTS[current].summary;
     const needsDelivery = current === "paperback";
-    delivery.hidden = !needsDelivery;
+    const isCollect = current === "collect";
+    delivery.hidden = !(needsDelivery || isCollect);
     delivery.querySelectorAll("input").forEach((i) => (i.required = needsDelivery));
-    document.getElementById("emailHint").textContent = needsDelivery
+    document.getElementById("cell").required = needsDelivery || isCollect;
+    document.getElementById("postnetField").hidden = isCollect;
+    document.getElementById("cellHint").textContent = isCollect
+      ? "We'll contact you on this number to arrange collection."
+      : "PostNet will contact you on this number when your book arrives.";
+    document.getElementById("emailHint").textContent = needsDelivery || isCollect
       ? "Your order confirmation and journal app code will be sent here."
       : "Your access code will be sent here.";
     err.textContent = "";

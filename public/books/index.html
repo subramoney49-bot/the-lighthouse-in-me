@@ -140,6 +140,19 @@
           <div class="grow"></div>
           <button class="btn gold" data-buy="paperback">Buy the paperback</button>
         </article>
+        <article class="card">
+          <span class="tag">Paperback + free journal</span>
+          <h3>Collect it</h3>
+          <div class="price">R310</div>
+          <p class="price-note">No delivery · collect your copy</p>
+          <ul>
+            <li>A printed copy of the book</li>
+            <li>We'll contact you to arrange collection</li>
+            <li>Free access to the <em>Seven Days to Reclaim Your Worth</em> journal</li>
+          </ul>
+          <div class="grow"></div>
+          <button class="btn" data-buy="collect">Buy for collection</button>
+        </article>
       </div>
       <p class="pay-note">Secure payment through PayFast · Card, Instant EFT and more</p>
       <p class="proceeds-note">Part of the proceeds from every copy goes to the <b>Women of Wonder (WOW) Projects Academy</b>, supporting its work with women, children and communities.</p>
@@ -200,9 +213,9 @@
         <div class="field">
           <label for="cell">Cell number</label>
           <input id="cell" name="cell" type="tel" autocomplete="tel" placeholder="e.g. 082 123 4567">
-          <span class="hint">PostNet will contact you on this number when your book arrives.</span>
+          <span class="hint" id="cellHint">PostNet will contact you on this number when your book arrives.</span>
         </div>
-        <div class="field">
+        <div class="field" id="postnetField">
           <label for="postnet">Nearest PostNet branch</label>
           <input id="postnet" name="postnet" placeholder="e.g. PostNet Chatsworth Centre">
         </div>

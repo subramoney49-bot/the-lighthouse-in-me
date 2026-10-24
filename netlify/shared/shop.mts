@@ -19,6 +19,13 @@ export const PRODUCTS = {
     amount: "380.00",
     needsDelivery: true,
   },
+  collect: {
+    id: "collect",
+    name: "The Lighthouse in Me - Paperback (collection)",
+    description: "Printed book for collection (no delivery), with the free 7-Day Journal App",
+    amount: "310.00",
+    needsDelivery: false,
+  },
   // R5 payment for testing the live checkout. Only accepted when the
   // ALLOW_TEST_PURCHASE setting is "yes" in Netlify.
   test: {

@@ -95,11 +95,11 @@
 
     function render(d) {
       const paid = d.orders.filter((o) => o.status === "paid");
-      const toPost = paid.filter((o) => o.product === "paperback" && !o.posted).length;
+      const toPost = paid.filter((o) => (o.product === "paperback" || o.product === "collect") && !o.posted).length;
       const needCode = paid.filter((o) => o.needsManualCode).length;
       $("stats").innerHTML = `
         <div class="stat"><b>${paid.length}</b>Paid orders</div>
-        <div class="stat ${toPost ? "warn" : ""}"><b>${toPost}</b>Paperbacks to post</div>
+        <div class="stat ${toPost ? "warn" : ""}"><b>${toPost}</b>Paperbacks to post or hand over</div>
         <div class="stat ${needCode ? "warn" : ""}"><b>${needCode}</b>Ebooks waiting for a code</div>
         <div class="stat ${d.pool.available < 5 ? "warn" : ""}"><b>${d.pool.available}</b>Reader codes left</div>`;
       $("rows").innerHTML = d.orders.map((o) => {
@@ -107,12 +107,12 @@
         let code = esc(o.ebookCode || o.journalCode || "");
         if (o.needsManualCode) code = `<div class="inline"><input placeholder="Reader code" data-code="${o.id}"><button class="btn small" data-assign="${o.id}">Send</button></div>`;
         let status = o.status === "paid" ? '<span class="pill ok">Paid</span>' : `<span class="pill bad">${esc(o.status)}</span>`;
-        if (o.status === "paid" && o.product === "paperback")
+        if (o.status === "paid" && (o.product === "paperback" || o.product === "collect"))
           status += `<br><label style="font-size:.82rem"><input type="checkbox" data-posted="${o.id}" ${o.posted ? "checked" : ""}> Posted</label>`;
         return `<tr><td>${date}</td>
           <td><b>${esc(o.firstName)} ${esc(o.lastName)}</b><br><span class="muted">${esc(o.email)}</span></td>
-          <td>${o.product === "paperback" ? "Paperback" : o.product === "test" ? "Test (R5)" : "Ebook"}<br><span class="muted">R${esc(o.amount)}</span></td>
-          <td>${o.product === "paperback" ? esc(o.postnet) + "<br><span class='muted'>" + esc(o.cell) + "</span>" : "—"}</td>
+          <td>${o.product === "paperback" ? "Paperback" : o.product === "collect" ? "Paperback (collect)" : o.product === "test" ? "Test (R5)" : "Ebook"}<br><span class="muted">R${esc(o.amount)}</span></td>
+          <td>${o.product === "paperback" ? esc(o.postnet) + "<br><span class='muted'>" + esc(o.cell) + "</span>" : o.product === "collect" ? "Collection<br><span class='muted'>" + esc(o.cell) + "</span>" : "—"}</td>
           <td><code>${code}</code></td><td>${status}</td></tr>`;
       }).join("") || '<tr><td colspan="6" class="muted">No orders yet.</td></tr>';
     }

@@ -70,6 +70,15 @@
             <p><a class="btn gold" href="/journal/?code=${encodeURIComponent(o.journalCode)}">Open the journal</a></p>
             <p>A confirmation has been emailed to <strong>${esc(o.email)}</strong>.</p>`);
         }
+        if (o.status === "paid" && o.product === "collect") {
+          return show(`
+            <h2>Thank you, ${esc(o.firstName)}</h2>
+            <p>Your payment is confirmed. We'll contact you on your cell number to arrange collecting your book.</p>
+            <p>Your free 7-Day Journal App code:</p>
+            <div class="code">${esc(o.journalCode)}</div>
+            <p><a class="btn gold" href="/journal/?code=${encodeURIComponent(o.journalCode)}">Open the journal</a></p>
+            <p>A confirmation has been emailed to <strong>${esc(o.email)}</strong>.</p>`);
+        }
         if (o.status === "cancelled" || o.status === "failed") {
           return show(`<h2>Payment not completed</h2><p>You have not been charged. <a href="/books/#buy">Try again</a>.</p>`);
         }
