@@ -8,7 +8,7 @@
 
   const PRODUCTS = {
     ebook: { title: "Ebook · R199", summary: "Read the full book online with your personal access code." },
-    paperback: { title: "Paperback · R380", summary: "R380 including PostNet to PostNet delivery to your nearest branch, with the free 7-Day Journal App." },
+    paperback: { title: "Paperback · R380", summary: "R380 including PostNet to PostNet delivery. Enter the PostNet branch you want it delivered to below. Includes the free 7-Day Journal App." },
     collect: { title: "Paperback, collect · R310", summary: "The printed book with no delivery: we'll contact you to arrange collection. Includes the free 7-Day Journal App." },
     test: { title: "Website test · R5", summary: "A R5 payment to check the checkout works. Only you will see this." },
   };
