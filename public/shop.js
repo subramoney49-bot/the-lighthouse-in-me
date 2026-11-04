@@ -7,9 +7,9 @@
   }
 
   const PRODUCTS = {
-    ebook: { title: "Ebook · R199", summary: "Read the full book online with your personal access code." },
-    paperback: { title: "Paperback · R380", summary: "R380 including PostNet to PostNet delivery. Enter the PostNet branch you want it delivered to below. Includes the free 7-Day Journal App." },
-    collect: { title: "Paperback, collect · R310", summary: "The printed book with no delivery: we'll contact you to arrange collection. Includes the free 7-Day Journal App." },
+    ebook: { title: "Ebook · R220", summary: "Read the full book online with your personal access code." },
+    paperback: { title: "Paperback + PostNet delivery · R430", summary: "Paperback R310 + R120 PostNet to PostNet delivery (R430 total). Enter the PostNet branch you want it delivered to below. Includes the free 7-Day Journal App." },
+    collect: { title: "Paperback, collect in Midrand · R310", summary: "Collect your printed book in Midrand, no delivery fee. We'll contact you to arrange collection. Includes the free 7-Day Journal App." },
     test: { title: "Website test · R5", summary: "A R5 payment to check the checkout works. Only you will see this." },
   };
   const dlg = document.getElementById("checkout");
@@ -31,7 +31,7 @@
     document.getElementById("cell").required = needsDelivery || isCollect;
     document.getElementById("postnetField").hidden = isCollect;
     document.getElementById("cellHint").textContent = isCollect
-      ? "We'll contact you on this number to arrange collection."
+      ? "We'll contact you on this number to arrange collection in Midrand."
       : "PostNet will contact you on this number when your book arrives.";
     document.getElementById("emailHint").textContent = needsDelivery || isCollect
       ? "Your order confirmation and journal app code will be sent here."
