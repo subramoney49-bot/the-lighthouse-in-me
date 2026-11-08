@@ -183,43 +183,50 @@ export function isSharedCode(code: string): boolean {
   return !!shared && code.trim().toUpperCase() === shared.toUpperCase()
 }
 
-// Sends from Gmail when GMAIL_APP_PASSWORD is set (GMAIL_USER defaults to
-// lighthouseinme@gmail.com); otherwise from Resend when RESEND_API_KEY is set.
-export async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
-  const gmailPass = env("GMAIL_APP_PASSWORD").replace(/\s+/g, "")
-  if (gmailPass) {
-    const user = env("GMAIL_USER") || "lighthouseinme@gmail.com"
-    try {
-      const nodemailer = (await import("nodemailer")).default
-      const transport = nodemailer.createTransport({
-        host: "smtp.gmail.com", port: 465, secure: true,
-        auth: { user, pass: gmailPass },
-      })
-      await transport.sendMail({
-        from: `"The Lighthouse in Me" <${user}>`,
-        to, subject, html,
-      })
-      return true
-    } catch (e) {
-      console.error("Gmail send failed", e)
-      return false
-    }
-  }
-  const key = env("RESEND_API_KEY")
-  const from = env("EMAIL_FROM")
-  if (!key || !from) return false
+// Sends through Resend from the verified reshma.co.za domain when
+// RESEND_API_KEY is set; replies go to lighthouseinme@gmail.com.
+// Falls back to Gmail (GMAIL_APP_PASSWORD) if Resend is missing or fails.
+export const REPLY_TO = () => env("REPLY_TO_EMAIL") || "lighthouseinme@gmail.com"
+
+async function sendViaResend(to: string, subject: string, html: string): Promise<boolean> {
+  const key = env("RESEND_API_KEY").trim()
+  if (!key) return false
+  const from = env("EMAIL_FROM") || "The Lighthouse in Me <books@reshma.co.za>"
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to: [to], subject, html }),
+      body: JSON.stringify({ from, to: [to], subject, html, reply_to: REPLY_TO() }),
     })
-    if (!res.ok) console.error("Email failed", res.status, await res.text())
+    if (!res.ok) console.error("Resend failed", res.status, await res.text())
     return res.ok
   } catch (e) {
-    console.error("Email error", e)
+    console.error("Resend error", e)
     return false
   }
+}
+
+async function sendViaGmail(to: string, subject: string, html: string): Promise<boolean> {
+  const gmailPass = env("GMAIL_APP_PASSWORD").replace(/\s+/g, "")
+  if (!gmailPass) return false
+  const user = env("GMAIL_USER") || "lighthouseinme@gmail.com"
+  try {
+    const nodemailer = (await import("nodemailer")).default
+    const transport = nodemailer.createTransport({
+      host: "smtp.gmail.com", port: 465, secure: true,
+      auth: { user, pass: gmailPass },
+    })
+    await transport.sendMail({ from: `"The Lighthouse in Me" <${user}>`, to, subject, html })
+    return true
+  } catch (e) {
+    console.error("Gmail send failed", e)
+    return false
+  }
+}
+
+export async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+  if (await sendViaResend(to, subject, html)) return true
+  return sendViaGmail(to, subject, html)
 }
 
 export function escapeHtml(s: string): string {
