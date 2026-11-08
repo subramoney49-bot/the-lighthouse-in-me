@@ -184,10 +184,8 @@ export function isSharedCode(code: string): boolean {
 }
 
 // Sends through Resend from the verified reshma.co.za domain when
-// RESEND_API_KEY is set; replies go to lighthouseinme@gmail.com.
+// RESEND_API_KEY is set (no reply-to; queries go to lighthouseinme@gmail.com).
 // Falls back to Gmail (GMAIL_APP_PASSWORD) if Resend is missing or fails.
-export const REPLY_TO = () => env("REPLY_TO_EMAIL") || "lighthouseinme@gmail.com"
-
 async function sendViaResend(to: string, subject: string, html: string): Promise<boolean> {
   const key = env("RESEND_API_KEY").trim()
   if (!key) return false
@@ -196,7 +194,7 @@ async function sendViaResend(to: string, subject: string, html: string): Promise
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to: [to], subject, html, reply_to: REPLY_TO() }),
+      body: JSON.stringify({ from, to: [to], subject, html }),
     })
     if (!res.ok) console.error("Resend failed", res.status, await res.text())
     return res.ok
