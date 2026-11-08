@@ -111,7 +111,7 @@ export default async (req: Request, context: Context) => {
     `<p style="font-size:22px;font-weight:bold;letter-spacing:2px;margin:16px 0">${escapeHtml(code)}</p>`
   const button = (href: string, label: string) =>
     `<p style="margin:12px 0"><a href="${href}" style="background:#1d3447;color:#fdfbf7;padding:12px 20px;border-radius:999px;text-decoration:none;font-weight:bold;display:inline-block">${label}</a></p>`
-  const sign = `<p>With warm regards,<br>Reshma Subramoney<br><a href="${siteUrl}">${siteUrl.replace(/^https?:\/\//, "")}</a></p>`
+  const sign = `<p>With warm regards,<br>Reshma Subramoney<br><a href="${siteUrl}">${siteUrl.replace(/^https?:\/\//, "")}</a></p><p style="color:#666;font-size:13px">Please do not reply to this email. For any queries, email <a href="mailto:lighthouseinme@gmail.com">lighthouseinme@gmail.com</a>.</p>`
 
   if (order.product === "ebook" && order.ebookCode) {
     order.emailSent = await sendEmail(

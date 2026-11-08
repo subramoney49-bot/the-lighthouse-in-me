@@ -197,7 +197,7 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
       })
       await transport.sendMail({
         from: `"The Lighthouse in Me" <${user}>`,
-        to, subject, html, replyTo: SALES_EMAIL(),
+        to, subject, html,
       })
       return true
     } catch (e) {
@@ -212,7 +212,7 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to: [to], subject, html, reply_to: SALES_EMAIL() }),
+      body: JSON.stringify({ from, to: [to], subject, html }),
     })
     if (!res.ok) console.error("Email failed", res.status, await res.text())
     return res.ok
