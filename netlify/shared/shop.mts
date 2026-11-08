@@ -9,7 +9,7 @@ export const PRODUCTS = {
     id: "ebook",
     name: "The Lighthouse in Me - Ebook",
     description: "Online ebook edition with a personal access code",
-    amount: "220.00",
+    amount: "199.00",
     needsDelivery: false,
   },
   paperback: {
