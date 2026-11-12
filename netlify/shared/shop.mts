@@ -26,6 +26,13 @@ export const PRODUCTS = {
     amount: "310.00",
     needsDelivery: false,
   },
+  ereader: {
+    id: "ereader",
+    name: "Custom E-Reader for Authors",
+    description: "A custom online e-reader for your book, locked with access codes (once-off)",
+    amount: "3800.00",
+    needsDelivery: false,
+  },
   // R5 payment for testing the live checkout. Only accepted when the
   // ALLOW_TEST_PURCHASE setting is "yes" in Netlify.
   test: {
@@ -142,6 +149,7 @@ export interface Order {
   email: string
   cell: string
   postnet: string
+  bookTitle?: string
   status: "pending" | "paid" | "failed" | "cancelled"
   createdAt: string
   paidAt?: string

@@ -91,7 +91,7 @@ export default async (req: Request, context: Context) => {
   const shared = SHARED_CODE()
   if (shared) {
     // One code opens both the online book and the journal
-    order.journalCode = shared
+    if (order.product !== "ereader") order.journalCode = shared
     if (order.product === "ebook") order.ebookCode = shared
   } else {
     if (order.product === "ebook") {
@@ -154,6 +154,14 @@ export default async (req: Request, context: Context) => {
        ${codeBlock(order.journalCode ?? "")}
        ${button(journalLink, "Open the journal")}${sign}`,
     )
+  } else if (order.product === "ereader") {
+    order.emailSent = await sendEmail(
+      order.email,
+      "Your custom e-reader order",
+      `<p>Dear ${name},</p>
+       <p>Thank you for ordering a custom e-reader${order.bookTitle ? ` for <strong>${escapeHtml(order.bookTitle)}</strong>` : ""}. Your payment of R3,800 is confirmed.</p>
+       <p>Reshma will contact you on ${escapeHtml(order.cell)} within two working days to collect your manuscript, cover and preferences, and to agree a timeline.</p>${sign}`,
+    )
   } else {
     order.emailSent = await sendEmail(
       order.email,
@@ -166,7 +174,7 @@ export default async (req: Request, context: Context) => {
   await sendEmail(
     SALES_EMAIL(),
     `${order.needsManualCode ? "ACTION NEEDED - send ebook code: " : ""}New ${order.product} order: ${order.firstName} ${order.lastName} (R${order.amount})`,
-    `<p><strong>${order.product === "paperback" ? "Paperback — please post" : order.product === "collect" ? "Paperback — COLLECTION (no delivery), please contact buyer to arrange" : order.product === "test" ? "Test payment" : "Ebook"}</strong></p>
+    `<p><strong>${order.product === "ereader" ? `Custom e-reader for an author — please contact the buyer${order.bookTitle ? ` (book: ${escapeHtml(order.bookTitle)})` : ""}` : order.product === "paperback" ? "Paperback — please post" : order.product === "collect" ? "Paperback — COLLECTION (no delivery), please contact buyer to arrange" : order.product === "test" ? "Test payment" : "Ebook"}</strong></p>
      <p>Buyer email ${order.emailSent ? "sent" : "NOT sent - please send the code yourself"}.</p>
      <p>Name: ${escapeHtml(order.firstName + " " + order.lastName)}<br>
      Email: ${escapeHtml(order.email)}<br>
@@ -174,7 +182,7 @@ export default async (req: Request, context: Context) => {
      PostNet branch: ${escapeHtml(order.postnet || "-")}<br>
      Amount: R${order.amount}<br>
      PayFast ref: ${escapeHtml(order.pfPaymentId ?? "")}<br>
-     Code issued: ${order.ebookCode ?? order.journalCode ?? "NONE - the ebook code pool is empty. Add codes on the admin page and assign one to this order."}</p>`,
+     ${order.product === "ereader" ? "" : `Code issued: ${order.ebookCode ?? order.journalCode ?? "NONE - the ebook code pool is empty. Add codes on the admin page and assign one to this order."}`}</p>`,
   )
 
   return ok()

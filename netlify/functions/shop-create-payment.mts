@@ -27,6 +27,7 @@ export default async (req: Request, context: Context) => {
   const email = clean(body.email, 100).toLowerCase()
   const cell = clean(body.cell, 20).replace(/[^\d+]/g, "")
   const postnet = clean(body.postnet, 200)
+  const bookTitle = clean(body.bookTitle, 150)
 
   if (!firstName || !lastName) return json({ error: "Please enter your full name." }, 400)
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "Please enter a valid email address." }, 400)
@@ -34,7 +35,7 @@ export default async (req: Request, context: Context) => {
     if (cell.replace(/\D/g, "").length < 9) return json({ error: "Please enter a valid cell number." }, 400)
     if (!postnet) return json({ error: "Please enter your nearest PostNet branch." }, 400)
   }
-  if (product.id === "collect" && cell.replace(/\D/g, "").length < 9) {
+  if ((product.id === "collect" || product.id === "ereader") && cell.replace(/\D/g, "").length < 9) {
     return json({ error: "Please enter a valid cell number." }, 400)
   }
 
@@ -43,6 +44,7 @@ export default async (req: Request, context: Context) => {
     product: product.id,
     amount: product.amount,
     firstName, lastName, email, cell, postnet,
+    ...(product.id === "ereader" && bookTitle ? { bookTitle } : {}),
     status: "pending",
     createdAt: new Date().toISOString(),
   }
@@ -72,8 +74,8 @@ export default async (req: Request, context: Context) => {
     ["item_description", product.description],
     ["custom_str1", product.id],
     // Shown on the PayFast transaction, so delivery details are visible there too
-    ["custom_str2", product.needsDelivery ? `PostNet: ${postnet}`.slice(0, 255) : product.id === "collect" ? "Collection - no delivery" : ""],
-    ["custom_str3", product.needsDelivery || product.id === "collect" ? `Cell: ${cell}` : ""],
+    ["custom_str2", product.needsDelivery ? `PostNet: ${postnet}`.slice(0, 255) : product.id === "collect" ? "Collection - no delivery" : product.id === "ereader" && bookTitle ? `Book: ${bookTitle}`.slice(0, 255) : ""],
+    ["custom_str3", product.needsDelivery || product.id === "collect" || product.id === "ereader" ? `Cell: ${cell}` : ""],
   )
   const fields = pairs.map(([k, v]) => [k, v.trim()] as [string, string]).filter(([, v]) => v !== "")
   fields.push(["signature", signature(fields, pf.passphrase)])

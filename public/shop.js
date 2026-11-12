@@ -10,6 +10,7 @@
     ebook: { title: "Ebook · R199", summary: "Read the full book online with your personal access code." },
     paperback: { title: "Paperback + PostNet delivery · R430", summary: "Paperback R310 + R120 PostNet to PostNet delivery (R430 total). Enter the PostNet branch you want it delivered to below. Includes the free 7-Day Journal App." },
     collect: { title: "Paperback, collect in Midrand · R310", summary: "Collect your printed book in Midrand, no delivery fee. We'll contact you to arrange collection. Includes the free 7-Day Journal App." },
+    ereader: { title: "Custom e-reader for authors · R3,800", summary: "A custom online e-reader for your book, locked with access codes. Once-off R3,800 (about US$230). Reshma will contact you to collect your manuscript and agree a timeline." },
     test: { title: "Website test · R5", summary: "A R5 payment to check the checkout works. Only you will see this." },
   };
   const dlg = document.getElementById("checkout");
@@ -26,14 +27,20 @@
     document.getElementById("modalSummary").textContent = PRODUCTS[current].summary;
     const needsDelivery = current === "paperback";
     const isCollect = current === "collect";
-    delivery.hidden = !(needsDelivery || isCollect);
+    const isReader = current === "ereader";
+    delivery.hidden = !(needsDelivery || isCollect || isReader);
     delivery.querySelectorAll("input").forEach((i) => (i.required = needsDelivery));
-    document.getElementById("cell").required = needsDelivery || isCollect;
-    document.getElementById("postnetField").hidden = isCollect;
-    document.getElementById("cellHint").textContent = isCollect
+    document.getElementById("cell").required = needsDelivery || isCollect || isReader;
+    document.getElementById("postnetField").hidden = isCollect || isReader;
+    document.getElementById("bookTitleField").hidden = !isReader;
+    document.getElementById("cellHint").textContent = isReader
+      ? "Reshma will contact you on this number to get started."
+      : isCollect
       ? "We'll contact you on this number to arrange collection in Midrand."
       : "PostNet will contact you on this number when your book arrives.";
-    document.getElementById("emailHint").textContent = needsDelivery || isCollect
+    document.getElementById("emailHint").textContent = isReader
+      ? "Your payment confirmation will be sent here."
+      : needsDelivery || isCollect
       ? "Your order confirmation and journal app code will be sent here."
       : "Your access code will be sent here.";
     err.textContent = "";

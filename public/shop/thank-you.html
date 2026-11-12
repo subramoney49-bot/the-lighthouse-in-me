@@ -79,6 +79,13 @@
             <p><a class="btn gold" href="/journal/?code=${encodeURIComponent(o.journalCode)}">Open the journal</a></p>
             <p>A confirmation has been emailed to <strong>${esc(o.email)}</strong>.</p>`);
         }
+        if (o.status === "paid" && o.product === "ereader") {
+          return show(`
+            <h2>Thank you, ${esc(o.firstName)}</h2>
+            <p>Your payment for a custom e-reader${o.bookTitle ? ` for <strong>${esc(o.bookTitle)}</strong>` : ""} is confirmed.</p>
+            <p>Reshma will contact you within two working days to collect your manuscript, cover and preferences, and to agree a timeline.</p>
+            <p>A confirmation has been emailed to <strong>${esc(o.email)}</strong>.</p>`);
+        }
         if (o.status === "cancelled" || o.status === "failed") {
           return show(`<h2>Payment not completed</h2><p>You have not been charged. <a href="/books/#buy">Try again</a>.</p>`);
         }
