@@ -119,6 +119,7 @@ section { padding-block: clamp(3.5rem, 8vw, 6rem); }
 
 .contact-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(2rem, 5vw, 4rem); }
 .field { display: grid; gap: .35rem; margin-bottom: 1rem; }
+[hidden] { display: none !important; }
 .field label { font: 700 .85rem var(--ui); }
 .field input, .field textarea {
   font: 1rem var(--body); color: var(--ink); background: var(--paper);
