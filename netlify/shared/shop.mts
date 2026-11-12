@@ -215,6 +215,8 @@ export interface Order {
   needsManualCode?: boolean
   posted?: boolean
   emailSent?: boolean
+  source?: string
+  campaign?: string
 }
 
 export function newOrderId(): string {

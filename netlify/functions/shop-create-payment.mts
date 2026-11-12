@@ -28,6 +28,8 @@ export default async (req: Request, context: Context) => {
   const cell = clean(body.cell, 20).replace(/[^\d+]/g, "")
   const postnet = clean(body.postnet, 200)
   const bookTitle = clean(body.bookTitle, 150)
+  const source = clean(body.source, 30).replace(/[^\w .()/-]/g, "")
+  const campaign = clean(body.campaign, 40).toLowerCase().replace(/[^a-z0-9_-]/g, "")
 
   if (!firstName || !lastName) return json({ error: "Please enter your full name." }, 400)
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "Please enter a valid email address." }, 400)
@@ -48,6 +50,8 @@ export default async (req: Request, context: Context) => {
     amount: product.amount,
     firstName, lastName, email, cell, postnet,
     ...(product.id === "ereader" && bookTitle ? { bookTitle } : {}),
+    ...(source ? { source } : {}),
+    ...(campaign ? { campaign } : {}),
     status: "pending",
     createdAt: new Date().toISOString(),
   }

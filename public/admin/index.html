@@ -55,12 +55,32 @@
         <tbody id="rows"></tbody>
       </table></div>
 
-      <h2>Ebook reader codes</h2>
+      <h2>Website stats</h2>
       <div class="box">
-        <p>Paste unused access codes from your reader spreadsheet, one per line. Each ebook sale automatically receives the next code. Remember to note the buyer against the code in your spreadsheet.</p>
-        <textarea id="codes" placeholder="CODE-ONE&#10;CODE-TWO"></textarea>
-        <p style="margin-top:.8rem"><button class="btn" id="addCodes">Add codes</button></p>
-        <div class="msg" id="codesMsg"></div>
+        <p style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:0 0 1rem">
+          <span class="muted">Show the last</span>
+          <button class="btn small" data-days="7">7 days</button>
+          <button class="btn small" data-days="30">30 days</button>
+          <button class="btn small" data-days="90">90 days</button>
+          <button class="btn small" data-days="365">Year</button>
+        </p>
+        <div id="webStats"><p class="muted">Choose a period to see your website stats.</p></div>
+      </div>
+
+      <h2>Campaign links</h2>
+      <div class="box">
+        <p>Make a separate link for each post, video or interview. Visits, Buy taps and sales from that link show up under <b>Campaign links</b> in the stats above.</p>
+        <div class="field"><label for="campName">Campaign name</label><input id="campName" placeholder="e.g. tiktok-chapter1-video"></div>
+        <div class="field"><label for="campPage">Page it opens</label>
+          <select id="campPage" style="font:inherit;padding:.5rem;border:1px solid var(--rule);border-radius:8px">
+            <option value="/books/">Books page (buy the book)</option>
+            <option value="/">Home page</option>
+            <option value="/journal/">7-day journal</option>
+            <option value="/news/">News and articles</option>
+          </select></div>
+        <p id="campOut" style="word-break:break-all;font-weight:700;min-height:1.4rem"></p>
+        <button class="btn small" id="campCopy" hidden>Copy link</button>
+        <div class="msg" id="campMsg"></div>
       </div>
     </section>
   </main>
@@ -100,12 +120,11 @@
       $("stats").innerHTML = `
         <div class="stat"><b>${paid.length}</b>Paid orders</div>
         <div class="stat ${toPost ? "warn" : ""}"><b>${toPost}</b>Paperbacks to post or hand over</div>
-        <div class="stat ${needCode ? "warn" : ""}"><b>${needCode}</b>Ebooks waiting for a code</div>
-        <div class="stat ${d.pool.available < 5 ? "warn" : ""}"><b>${d.pool.available}</b>Reader codes left</div>`;
+        <div class="stat ${needCode ? "warn" : ""}"><b>${needCode}</b>Ebooks waiting for a licence</div>`;
       $("rows").innerHTML = d.orders.map((o) => {
         const date = new Date(o.paidAt || o.createdAt).toLocaleString("en-ZA", { dateStyle: "medium", timeStyle: "short" });
         let code = esc(o.ebookCode || o.journalCode || "");
-        if (o.needsManualCode) code = `<div class="inline"><input placeholder="Reader code" data-code="${o.id}"><button class="btn small" data-assign="${o.id}">Send</button></div>`;
+        if (o.needsManualCode) code = `<div class="inline"><input placeholder="Licence code from Reader Admin" data-code="${o.id}" style="width:220px"><button class="btn small" data-assign="${o.id}">Email it</button></div>`;
         let status = o.status === "paid" ? '<span class="pill ok">Paid</span>' : `<span class="pill bad">${esc(o.status)}</span>`;
         if (o.status === "paid" && (o.product === "paperback" || o.product === "collect"))
           status += `<br><label style="font-size:.82rem"><input type="checkbox" data-posted="${o.id}" ${o.posted ? "checked" : ""}> Posted</label>`;
@@ -136,16 +155,56 @@
       const id = e.target.dataset.posted;
       if (id) { try { await api("posted", { orderId: id, posted: e.target.checked }); load(); } catch (err) { alert(err.message); } }
     });
-    $("addCodes").addEventListener("click", async () => {
-      $("codesMsg").textContent = "Adding…";
+    const R = (n) => "R" + Math.round(n).toLocaleString("en-ZA").replace(/,/g, " ");
+    const PNAME = { ebook: "Ebook", paperback: "Paperback (PostNet)", collect: "Paperback (collect)", ereader: "Author e-reader" };
+    const pct = (a, b) => (b ? Math.round((a * 100) / b) + "%" : "–");
+    function table(head, rows) {
+      return `<div class="table" style="margin:.6rem 0 1.4rem"><table style="min-width:520px"><thead><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${
+        rows.length ? rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${head.length}" class="muted">Nothing yet for this period.</td></tr>`
+      }</tbody></table></div>`;
+    }
+    async function loadStats(days) {
+      $("webStats").innerHTML = '<p class="muted">Loading…</p>';
       try {
-        const r = await api("codes", { codes: $("codes").value });
-        $("codesMsg").textContent = `Added ${r.added} code${r.added === 1 ? "" : "s"}${r.skipped ? `, skipped ${r.skipped} already added or used` : ""}.`;
-        $("codes").value = "";
-        load();
-      } catch (err) { $("codesMsg").textContent = err.message; }
+        const d = await api("stats?days=" + days);
+        const t = d.totals;
+        const max = Math.max(1, ...d.daily.map((x) => x.visits));
+        const bars = d.daily.slice(-60).map((x) => `<div title="${esc(x.date)}: ${x.visits} visits" style="flex:1;min-width:3px;background:var(--sea);opacity:.85;border-radius:2px 2px 0 0;height:${Math.max(2, (x.visits / max) * 100)}%"></div>`).join("");
+        $("webStats").innerHTML = `
+          <div class="stats">
+            <div class="stat"><b>${t.visits}</b>Visits</div>
+            <div class="stat"><b>${t.views}</b>Page views</div>
+            <div class="stat"><b>${t.sales}</b>Sales</div>
+            <div class="stat"><b>${R(t.revenue)}</b>Income</div>
+            <div class="stat"><b>${pct(t.sales, t.visits)}</b>Visits that bought</div>
+          </div>
+          ${d.daily.length ? `<p class="muted" style="margin:.2rem 0">Visits per day</p><div style="display:flex;align-items:flex-end;gap:2px;height:90px;background:#fff;border:1px solid var(--rule);border-radius:10px;padding:8px">${bars}</div>` : ""}
+          <h3 style="margin-top:1.4rem">Where visitors come from</h3>
+          ${table(["Source", "Visits", "Buy taps", "Checkouts", "Sales", "Income"], d.sources.map((x) => [esc(x.source), x.visits, x.buyTaps, x.checkouts, x.sales, R(x.revenue)]))}
+          <h3>Shop funnel</h3>
+          <p class="muted" style="margin:0">Books page views: <b>${d.funnel[0]?.booksPageViews ?? 0}</b>. Then, per product:</p>
+          ${table(["Product", "Tapped Buy", "Started PayFast", "Paid", "Buy → paid", "Income"], d.funnel.map((x) => [PNAME[x.product], x.buyTaps, x.checkouts, x.sales, pct(x.sales, x.buyTaps), R(x.revenue)]))}
+          <h3>Campaign links</h3>
+          ${table(["Campaign", "Visits", "Buy taps", "Checkouts", "Sales", "Income"], d.campaigns.map((x) => [esc(x.campaign), x.visits, x.buyTaps, x.checkouts, x.sales, R(x.revenue)]))}
+          <h3>Top pages</h3>
+          ${table(["Page", "Views"], d.pages.map((x) => [esc(({"/": "Home", "/books/": "Books", "/journal/": "7-day journal", "/news/": "News and articles", "/shop/thank-you.html": "Thank-you page (after paying)", "/thanks.html": "Contact thank-you"})[x.path] || x.path), x.views]))}
+          <h3>Best sellers</h3>
+          ${table(["Product", "Sales", "Income"], d.bestSellers.map((x) => [PNAME[x.product] || esc(x.product), x.sales, R(x.revenue)]))}
+          <p class="muted" style="font-size:.8rem">Visit counts are anonymous and cookie-free, and started on the day tracking was switched on. Sales before that show the source as "Unknown".</p>`;
+      } catch (e) { $("webStats").innerHTML = `<p class="error">${esc(e.message)}</p>`; }
+    }
+    document.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => loadStats(b.dataset.days)));
+    function campLink() {
+      const name = $("campName").value.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "").slice(0, 40);
+      $("campOut").textContent = name ? "https://reshma.co.za" + $("campPage").value + "?c=" + name : "";
+      $("campCopy").hidden = !name; $("campMsg").textContent = "";
+    }
+    $("campName").addEventListener("input", campLink);
+    $("campPage").addEventListener("change", campLink);
+    $("campCopy").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText($("campOut").textContent); $("campMsg").textContent = "Copied. Paste it into your post or bio."; }
+      catch (e) { $("campMsg").textContent = "Press and hold the link to copy it."; }
     });
-
     load();
   </script>
 </body>

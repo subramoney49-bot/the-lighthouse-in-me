@@ -66,6 +66,10 @@
     err.textContent = "";
     const data = Object.fromEntries(new FormData(form));
     data.product = current;
+    if (window.LH_TRACK) {
+      data.source = window.LH_TRACK.source;
+      data.campaign = window.LH_TRACK.campaign;
+    }
     payBtn.disabled = true;
     payBtn.textContent = "Please wait…";
     try {
@@ -76,6 +80,7 @@
       });
       const out = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(out.error || "Something went wrong. Please try again.");
+      if (window.LH_TRACK) window.LH_TRACK.send({ t: "checkout", product: current });
       const pf = document.createElement("form");
       pf.method = "POST";
       pf.action = out.action;
