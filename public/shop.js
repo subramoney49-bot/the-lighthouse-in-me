@@ -7,7 +7,7 @@
   }
 
   const PRODUCTS = {
-    ebook: { title: "Ebook · R199", summary: "Read the full book online with your personal access code." },
+    ebook: { title: "Ebook · R199", summary: "Read the full book online in the secure reader with your personal licence code." },
     paperback: { title: "Paperback + PostNet delivery · R430", summary: "Paperback R310 + R120 PostNet to PostNet delivery (R430 total). Enter the PostNet branch you want it delivered to below. Includes the free 7-Day Journal App." },
     collect: { title: "Paperback, collect in Midrand · R310", summary: "Collect your printed book in Midrand, no delivery fee. We'll contact you to arrange collection. Includes the free 7-Day Journal App." },
     ereader: { title: "Custom e-reader for authors · R3,800", summary: "A custom online e-reader for your book, locked with access codes. Once-off R3,800 (about US$230). Reshma will contact you to collect your manuscript and agree a timeline." },
@@ -28,12 +28,15 @@
     const needsDelivery = current === "paperback";
     const isCollect = current === "collect";
     const isReader = current === "ereader";
-    delivery.hidden = !(needsDelivery || isCollect || isReader);
+    const isEbook = current === "ebook";
+    delivery.hidden = !(needsDelivery || isCollect || isReader || isEbook);
     delivery.querySelectorAll("input").forEach((i) => (i.required = needsDelivery));
-    document.getElementById("cell").required = needsDelivery || isCollect || isReader;
-    document.getElementById("postnetField").hidden = isCollect || isReader;
+    document.getElementById("cell").required = needsDelivery || isCollect || isReader || isEbook;
+    document.getElementById("postnetField").hidden = isCollect || isReader || isEbook;
     document.getElementById("bookTitleField").hidden = !isReader;
-    document.getElementById("cellHint").textContent = isReader
+    document.getElementById("cellHint").textContent = isEbook
+      ? "Your ebook licence is linked to this number. We'll SMS a one-time code to it when you unlock the book."
+      : isReader
       ? "Reshma will contact you on this number to get started."
       : isCollect
       ? "We'll contact you on this number to arrange collection in Midrand."
@@ -42,7 +45,7 @@
       ? "Your payment confirmation will be sent here."
       : needsDelivery || isCollect
       ? "Your order confirmation and journal app code will be sent here."
-      : "Your access code will be sent here.";
+      : "Your licence code will be sent here.";
     err.textContent = "";
     dlg.showModal();
     document.getElementById("firstName").focus();

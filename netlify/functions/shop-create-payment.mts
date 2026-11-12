@@ -38,6 +38,9 @@ export default async (req: Request, context: Context) => {
   if ((product.id === "collect" || product.id === "ereader") && cell.replace(/\D/g, "").length < 9) {
     return json({ error: "Please enter a valid cell number." }, 400)
   }
+  if (product.id === "ebook" && !/^(\+?27|0)[6-8]\d{8}$/.test(cell)) {
+    return json({ error: "Please enter a valid South African cellphone number. Your ebook licence is linked to it." }, 400)
+  }
 
   const order: Order = {
     id: newOrderId(),
@@ -75,7 +78,7 @@ export default async (req: Request, context: Context) => {
     ["custom_str1", product.id],
     // Shown on the PayFast transaction, so delivery details are visible there too
     ["custom_str2", product.needsDelivery ? `PostNet: ${postnet}`.slice(0, 255) : product.id === "collect" ? "Collection - no delivery" : product.id === "ereader" && bookTitle ? `Book: ${bookTitle}`.slice(0, 255) : ""],
-    ["custom_str3", product.needsDelivery || product.id === "collect" || product.id === "ereader" ? `Cell: ${cell}` : ""],
+    ["custom_str3", product.needsDelivery || product.id === "collect" || product.id === "ereader" || product.id === "ebook" ? `Cell: ${cell}` : ""],
   )
   const fields = pairs.map(([k, v]) => [k, v.trim()] as [string, string]).filter(([, v]) => v !== "")
   fields.push(["signature", signature(fields, pf.passphrase)])

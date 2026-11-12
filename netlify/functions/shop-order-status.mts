@@ -17,6 +17,7 @@ export default async (req: Request, context: Context) => {
     postnet: order.postnet || null,
     bookTitle: order.bookTitle || null,
     ebookCode: order.status === "paid" ? order.ebookCode ?? null : null,
+    licencePhone: order.status === "paid" ? (order.licencePhone ?? order.cell ?? "").replace(/^\+27/, "0") || null : null,
     journalCode: order.status === "paid" ? order.journalCode ?? null : null,
     readerUrl: READER_URL(),
   })

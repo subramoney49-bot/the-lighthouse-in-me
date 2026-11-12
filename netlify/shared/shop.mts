@@ -75,8 +75,63 @@ export function payfastConfig() {
   }
 }
 
-export const READER_URL = () =>
-  env("READER_URL") || "https://the-lighthouse-in-me-edition2.netlify.app/"
+// The new secure reader (per-buyer licence codes + SMS check). The old edition2
+// reader has closed, so READER_URL may only override this with the new link.
+const NEW_READER = "https://lighthouse-secure-reader.netlify.app/"
+export const READER_URL = () => {
+  const u = env("READER_URL")
+  return u && !u.includes("edition2") ? u : NEW_READER
+}
+
+// Normalise a South African cell number to +27XXXXXXXXX
+export function intlCell(cell: string): string {
+  const d = String(cell || "").replace(/[^\d+]/g, "")
+  if (d.startsWith("+")) return d
+  if (d.startsWith("27")) return "+" + d
+  if (d.startsWith("0")) return "+27" + d.slice(1)
+  return d
+}
+
+// Ask the secure reader to create (or re-issue) a licence for this buyer.
+// Needs READER_ADMIN_KEY in Netlify (the same key as the reader's admin page).
+export async function issueReaderLicence(name: string, cell: string): Promise<{ code: string; phone: string } | null> {
+  const key = env("READER_ADMIN_KEY")
+  if (!key) { console.error("READER_ADMIN_KEY is not set"); return null }
+  const api = new URL(".netlify/functions/reader", READER_URL()).toString()
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(api, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+        body: JSON.stringify({ action: "admin-issue", name, phone: intlCell(cell) }),
+      })
+      const j = (await res.json().catch(() => ({}))) as { code?: string; phone?: string; error?: string }
+      if (res.ok && j.code) return { code: j.code, phone: j.phone || intlCell(cell) }
+      console.error("Reader licence failed", res.status, j.error)
+      if (res.status < 500) return null
+    } catch (e) {
+      console.error("Reader licence error", e)
+    }
+  }
+  return null
+}
+
+// Optional WhatsApp alert to Reshma through CallMeBot (free personal WhatsApp API).
+// Set CALLMEBOT_APIKEY (and optionally WHATSAPP_NOTIFY_PHONE) in Netlify to switch it on.
+export async function notifyWhatsApp(text: string): Promise<boolean> {
+  const apikey = env("CALLMEBOT_APIKEY")
+  if (!apikey) return false
+  const phone = (env("WHATSAPP_NOTIFY_PHONE") || "+27742895635").replace(/[^\d]/g, "")
+  try {
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(text)}&apikey=${encodeURIComponent(apikey)}`
+    const res = await fetch(url)
+    if (!res.ok) console.error("WhatsApp alert failed", res.status)
+    return res.ok
+  } catch (e) {
+    console.error("WhatsApp alert error", e)
+    return false
+  }
+}
 export const SALES_EMAIL = () => env("NOTIFY_EMAIL") || "lighthouseinme@gmail.com"
 
 // ---------------------------------------------------------------------------
@@ -155,6 +210,7 @@ export interface Order {
   paidAt?: string
   pfPaymentId?: string
   ebookCode?: string
+  licencePhone?: string
   journalCode?: string
   needsManualCode?: boolean
   posted?: boolean

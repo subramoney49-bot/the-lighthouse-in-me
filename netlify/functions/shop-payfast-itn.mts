@@ -1,7 +1,8 @@
 import type { Config, Context } from "@netlify/functions"
 import {
   PRODUCTS, payfastConfig, paramString, signature, orders, accessCodes,
-  newAccessCode, claimEbookCode, SHARED_CODE, sendEmail, escapeHtml, READER_URL, SALES_EMAIL, type Order,
+  newAccessCode, SHARED_CODE, sendEmail, escapeHtml, READER_URL, SALES_EMAIL,
+  issueReaderLicence, notifyWhatsApp, type Order,
 } from "../shared/shop.mts"
 
 // PayFast Instant Transaction Notification (ITN).
@@ -88,18 +89,17 @@ export default async (req: Request, context: Context) => {
     }
     throw new Error("Could not create a unique access code")
   }
+  // Ebook: create a personal licence in the secure reader, tied to the buyer's cellphone
+  if (order.product === "ebook") {
+    const lic = await issueReaderLicence(`${order.firstName} ${order.lastName}`, order.cell)
+    if (lic) { order.ebookCode = lic.code; order.licencePhone = lic.phone }
+    else order.needsManualCode = true
+  }
+  // Free journal code (unchanged)
   const shared = SHARED_CODE()
-  if (shared) {
-    // One code opens both the online book and the journal
-    if (order.product !== "ereader") order.journalCode = shared
-    if (order.product === "ebook") order.ebookCode = shared
-  } else {
-    if (order.product === "ebook") {
-      const code = await claimEbookCode(order.id, order.email)
-      if (code) order.ebookCode = code
-      else order.needsManualCode = true
-    }
-    if (order.product === "paperback" || order.product === "collect" || order.product === "test") order.journalCode = await issue("JOURNAL", "journal")
+  if (order.product !== "ereader") {
+    if (shared) order.journalCode = shared
+    else if (order.product === "paperback" || order.product === "collect" || order.product === "test") order.journalCode = await issue("JOURNAL", "journal")
   }
   await store.setJSON(order.id, order)
 
@@ -114,23 +114,31 @@ export default async (req: Request, context: Context) => {
   const sign = `<p>With warm regards,<br>Reshma Subramoney<br><a href="${siteUrl}">${siteUrl.replace(/^https?:\/\//, "")}</a></p><p style="color:#666;font-size:13px">Please do not reply to this email. For any queries, email <a href="mailto:lighthouseinme@gmail.com">lighthouseinme@gmail.com</a>.</p>`
 
   if (order.product === "ebook" && order.ebookCode) {
+    const localCell = (order.licencePhone || order.cell).replace(/^\+27/, "0")
     order.emailSent = await sendEmail(
       order.email,
-      "Your access code for The Lighthouse in Me",
+      "Your licence code for The Lighthouse in Me",
       `<p>Dear ${name},</p>
-       <p>Thank you for buying <em>The Lighthouse in Me</em>. Your payment is confirmed. Your access code is:</p>
+       <p>Thank you for buying <em>The Lighthouse in Me</em>. Your payment is confirmed. Your personal licence code is:</p>
        ${codeBlock(order.ebookCode)}
-       <p>Use it to read the book online:</p>
-       ${button(READER_URL(), "Read the book")}
-       ${order.journalCode ? `<p>The same code opens your free <em>Seven Days to Reclaim Your Worth</em> journal:</p>${button(journalLink, "Open the journal")}` : ""}
-       <p>Please keep this code for your own use.</p>${sign}`,
+       <p><strong>How to unlock the book:</strong></p>
+       <ol>
+         <li>Open the reader with the button below.</li>
+         <li>Tap <strong>Access Full Book With A Code</strong>.</li>
+         <li>Enter your cellphone number <strong>${escapeHtml(localCell)}</strong> and the licence code above.</li>
+         <li>We'll SMS you a one-time code. Enter it, and the full book opens.</li>
+       </ol>
+       ${button(READER_URL(), "Open the reader")}
+       <p>Your licence works on one device, so unlock it on the phone or tablet you'll read on. Tip: add the reader to your home screen so it's always one tap away.</p>
+       ${order.journalCode ? `<p>Your free <em>Seven Days to Reclaim Your Worth</em> journal code is:</p>${codeBlock(order.journalCode)}${button(journalLink, "Open the journal")}` : ""}
+       <p>Please keep your licence code private.</p>${sign}`,
     )
   } else if (order.product === "ebook") {
     order.emailSent = await sendEmail(
       order.email,
       "Your order of The Lighthouse in Me",
       `<p>Dear ${name},</p>
-       <p>Thank you for buying the ebook of <em>The Lighthouse in Me</em>. Your payment is confirmed, and your access code will be emailed to you shortly.</p>${sign}`,
+       <p>Thank you for buying the ebook of <em>The Lighthouse in Me</em>. Your payment is confirmed, and your personal licence code will be sent to you shortly.</p>${sign}`,
     )
   } else if (order.product === "paperback") {
     order.emailSent = await sendEmail(
@@ -173,7 +181,7 @@ export default async (req: Request, context: Context) => {
 
   await sendEmail(
     SALES_EMAIL(),
-    `${order.needsManualCode ? "ACTION NEEDED - send ebook code: " : ""}New ${order.product} order: ${order.firstName} ${order.lastName} (R${order.amount})`,
+    `${order.needsManualCode ? "ACTION NEEDED - create a reader licence: " : ""}New ${order.product} order: ${order.firstName} ${order.lastName} (R${order.amount})`,
     `<p><strong>${order.product === "ereader" ? `Custom e-reader for an author — please contact the buyer${order.bookTitle ? ` (book: ${escapeHtml(order.bookTitle)})` : ""}` : order.product === "paperback" ? "Paperback — please post" : order.product === "collect" ? "Paperback — COLLECTION (no delivery), please contact buyer to arrange" : order.product === "test" ? "Test payment" : "Ebook"}</strong></p>
      <p>Buyer email ${order.emailSent ? "sent" : "NOT sent - please send the code yourself"}.</p>
      <p>Name: ${escapeHtml(order.firstName + " " + order.lastName)}<br>
@@ -182,7 +190,14 @@ export default async (req: Request, context: Context) => {
      PostNet branch: ${escapeHtml(order.postnet || "-")}<br>
      Amount: R${order.amount}<br>
      PayFast ref: ${escapeHtml(order.pfPaymentId ?? "")}<br>
-     ${order.product === "ereader" ? "" : `Code issued: ${order.ebookCode ?? order.journalCode ?? "NONE - the ebook code pool is empty. Add codes on the admin page and assign one to this order."}`}</p>`,
+     ${order.product === "ereader" ? "" : `${order.product === "ebook" ? (order.ebookCode ? `Reader licence issued automatically for ${escapeHtml(order.licencePhone ?? order.cell)}` : "NO LICENCE - the reader could not be reached. Create one on the Reader Admin app and send it to the buyer.") : `Code issued: ${order.journalCode ?? "NONE"}`}`}</p>`,
+  )
+
+  // WhatsApp alert to Reshma (only if CALLMEBOT_APIKEY is set)
+  const label = order.product === "ebook" ? "Ebook" : order.product === "paperback" ? "Paperback (post)" : order.product === "collect" ? "Paperback (collect)" : order.product === "ereader" ? "Custom e-reader" : "Test"
+  await notifyWhatsApp(
+    `New sale: ${label} R${order.amount}\n${order.firstName} ${order.lastName}\n${order.cell || order.email}` +
+    (order.product === "ebook" ? (order.ebookCode ? "\nLicence code sent automatically." : "\nACTION NEEDED: create a licence on Reader Admin.") : ""),
   )
 
   return ok()

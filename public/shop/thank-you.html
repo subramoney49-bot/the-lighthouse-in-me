@@ -43,16 +43,17 @@
         if (o.status === "paid" && o.product === "ebook" && !o.ebookCode) {
           return show(`
             <h2>Thank you, ${esc(o.firstName)}</h2>
-            <p>Your payment is confirmed. Your personal access code will be emailed to <strong>${esc(o.email)}</strong> shortly.</p>`);
+            <p>Your payment is confirmed. Your personal licence code will be sent to <strong>${esc(o.email)}</strong> shortly.</p>`);
         }
         if (o.status === "paid" && o.product === "ebook") {
           return show(`
             <h2>Welcome, ${esc(o.firstName)}</h2>
-            <p>Your payment is confirmed. Here is your personal access code:</p>
+            <p>Your payment is confirmed. Here is your personal licence code:</p>
             <div class="code">${esc(o.ebookCode)}</div>
-            <p>We've also emailed it to <strong>${esc(o.email)}</strong>. Please keep it safe — it's for your personal use.</p>
-            <p style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap"><a class="btn gold" href="${esc(o.readerUrl)}">Read the book</a>${o.journalCode ? `<a class="btn ghost" href="/journal/?code=${encodeURIComponent(o.journalCode)}">Open the journal</a>` : ""}</p>
-            ${o.journalCode ? "<p>The same code also opens your free 7-day journal.</p>" : ""}`);
+            <p style="text-align:left;max-width:32rem;margin:0 auto">To unlock the book, open the reader, tap <strong>Access Full Book With A Code</strong>, and enter your cellphone number${o.licencePhone ? ` <strong>${esc(o.licencePhone)}</strong>` : ""} with this licence code. We'll SMS you a one-time code to finish.</p>
+            <p>We've also emailed this to <strong>${esc(o.email)}</strong>. Please keep it private. It works on one device.</p>
+            <p style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap"><a class="btn gold" href="${esc(o.readerUrl)}">Open the reader</a>${o.journalCode ? `<a class="btn ghost" href="/journal/?code=${encodeURIComponent(o.journalCode)}">Open the journal</a>` : ""}</p>
+            ${o.journalCode ? `<p>Your free 7-day journal code: <strong>${esc(o.journalCode)}</strong></p>` : ""}`);
         }
         if (o.status === "paid" && o.product === "test") {
           return show(`
