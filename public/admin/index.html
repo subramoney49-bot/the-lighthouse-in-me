@@ -39,7 +39,8 @@
     <section id="login" class="box" style="max-width:420px;padding:1.6rem">
       <h1 style="font-size:2rem">Sign in</h1>
       <form id="loginForm">
-        <div class="field"><label for="pw">Admin password</label><input id="pw" type="password" autocomplete="current-password" required></div>
+        <div class="field"><label for="pw">Admin password</label><input id="pw" type="password" autocomplete="current-password" required>
+          <label style="display:flex;align-items:center;gap:.5rem;font:400 .9rem var(--ui);cursor:pointer"><input type="checkbox" id="showPw" style="width:auto;margin:0"> Show password</label></div>
         <button class="btn" type="submit">Open orders</button>
         <div class="error" id="loginErr"></div>
       </form>
@@ -225,6 +226,7 @@
       try { await navigator.clipboard.writeText($("campOut").textContent); $("campMsg").textContent = "Copied. Paste it into your post or bio."; }
       catch (e) { $("campMsg").textContent = "Press and hold the link to copy it."; }
     });
+    $("showPw").addEventListener("change", (e) => { $("pw").type = e.target.checked ? "text" : "password"; });
     load();
   </script>
 </body>
