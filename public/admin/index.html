@@ -67,6 +67,13 @@
         <div id="webStats"><p class="muted">Choose a period to see your website stats.</p></div>
       </div>
 
+      <h2>Free journal sign-ups</h2>
+      <div class="box">
+        <p class="muted" style="margin:0 0 1rem">Readers who left their name and email at the end of Chapter 1 in the online reader to get the free 7-Day Journal.</p>
+        <button class="btn small" id="signupsBtn">Show sign-ups</button>
+        <div id="signups"></div>
+      </div>
+
       <h2>Campaign links</h2>
       <div class="box">
         <p>Make a separate link for each post, video or interview. Visits, Buy taps and sales from that link show up under <b>Campaign links</b> in the stats above.</p>
@@ -194,6 +201,19 @@
       } catch (e) { $("webStats").innerHTML = `<p class="error">${esc(e.message)}</p>`; }
     }
     document.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => loadStats(b.dataset.days)));
+    const SRC = { tiktok: "TikTok", facebook: "Facebook", instagram: "Instagram", whatsapp: "WhatsApp", linkedin: "LinkedIn", x: "X (Twitter)", youtube: "YouTube", google: "Google search", website: "Your website", email: "Email", direct: "Direct link", other: "Other" };
+    const escH = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    $("signupsBtn").addEventListener("click", async () => {
+      $("signups").innerHTML = '<p class="muted">Loading…</p>';
+      try {
+        const d = await api("signups");
+        const rows = d.signups.map((x) => [
+          new Date(x.createdAt).toLocaleString("en-ZA", { dateStyle: "medium", timeStyle: "short" }),
+          escH(x.name), `<a href="mailto:${escH(x.email)}">${escH(x.email)}</a>`, escH(SRC[x.src] || "—"), escH(x.code)]);
+        $("signups").innerHTML = `<p style="margin:1rem 0 0"><b>${rows.length}</b> sign-up${rows.length === 1 ? "" : "s"}</p>` +
+          table(["Date", "Name", "Email", "Came from", "Journal code"], rows);
+      } catch (e) { $("signups").innerHTML = `<p class="muted">${escH(e.message)}</p>`; }
+    });
     function campLink() {
       const name = $("campName").value.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "").slice(0, 40);
       $("campOut").textContent = name ? "https://reshma.co.za" + $("campPage").value + "?c=" + name : "";

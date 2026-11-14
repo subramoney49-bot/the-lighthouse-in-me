@@ -158,6 +158,8 @@ export function signature(pairs: [string, string][], passphrase: string): string
 // ---------------------------------------------------------------------------
 export const orders = () => getStore({ name: "shop-orders", consistency: "strong" })
 export const accessCodes = () => getStore({ name: "shop-access-codes", consistency: "strong" })
+// Free 7-Day Journal sign-ups from the end of Chapter 1 in the secure reader.
+export const journalSignups = () => getStore({ name: "journal-signups", consistency: "strong" })
 // Reshma's existing online-reader codes, loaded through the admin page.
 // Keys: "available/<CODE>" and "used/<CODE>"
 export const ebookPool = () => getStore({ name: "ebook-code-pool", consistency: "strong" })

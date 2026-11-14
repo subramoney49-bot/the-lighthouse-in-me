@@ -1,11 +1,12 @@
 import type { Config, Context } from "@netlify/functions"
-import { orders, ebookPool, poolCount, checkAdmin, json, sendEmail, escapeHtml, READER_URL, type Order } from "../shared/shop.mts"
+import { orders, journalSignups, ebookPool, poolCount, checkAdmin, json, sendEmail, escapeHtml, READER_URL, type Order } from "../shared/shop.mts"
 import { siteStats, emptyDay, saDate, type Day } from "../shared/stats.mts"
 
 // Admin API — every call needs the ADMIN_PASSWORD (set in Netlify) in the x-admin-key header.
 //   GET  /api/admin/summary            orders + code pool counts
 //   POST /api/admin/codes              { codes: "CODE1\nCODE2..." }  add reader codes to the pool
 //   POST /api/admin/assign             { orderId, code }  give an ebook buyer a code by hand
+//   GET  /api/admin/signups            free 7-Day Journal sign-ups from the reader
 //   POST /api/admin/posted             { orderId, posted }  mark a paperback as posted
 export default async (req: Request, context: Context) => {
   if (!(Netlify.env.get("ADMIN_PASSWORD") ?? "").trim()) {
@@ -23,6 +24,15 @@ export default async (req: Request, context: Context) => {
       .filter((o) => o && o.status !== "pending")
       .sort((a, b) => (b.paidAt ?? b.createdAt).localeCompare(a.paidAt ?? a.createdAt))
     return json({ orders: list, pool: await poolCount() })
+  }
+
+  if (action === "signups" && req.method === "GET") {
+    const st = journalSignups()
+    const { blobs } = await st.list({ prefix: "e/" })
+    const all = (await Promise.all(blobs.map((b) => st.get(b.key, { type: "json" })))) as
+      ({ name: string; email: string; code: string; src: string; createdAt: string } | null)[]
+    const list = all.filter(Boolean).sort((a, b) => b!.createdAt.localeCompare(a!.createdAt))
+    return json({ signups: list })
   }
 
   if (action === "stats" && req.method === "GET") {
